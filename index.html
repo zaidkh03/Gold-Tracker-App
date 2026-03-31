@@ -4,24 +4,691 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="title" content="GoldTrack – Live Gold Prices & Asset Manager" />
-    <meta name="description"
-        content="Track live gold prices by gram, karat, coins, and bars. Manage your gold assets, convert currencies, and monitor your profit & loss in real time." />
-    <meta name="keywords"
-        content="gold price, live gold tracker, gold assets, gold karat calculator, gold coins, gold bars, currency converter, profit loss gold" />
-    <title>Gold-Track</title>
-    <!-- !Bootstrap css cdn -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css">
-    <!-- !custom css -->
-    <link rel="stylesheet" href="assets/css/style.css">
+    <title>Aura Gold | Premium Marketplace</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Montserrat:wght@700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        /* --- CSS Variables for Theme Switching --- */
+        :root {
+            --bg-dark: #0a0a0a;
+            --bg-card: #141414;
+            --gold-primary: #d4af37;
+            --text-white: #ffffff;
+            --text-gray: #a0a0a0;
+            --border-color: #222;
+            --nav-bg: rgba(20, 20, 20, 0.95);
+            --chart-grid: #222;
+        }
+
+        [data-theme="light"] {
+            --bg-dark: #f4f4f7;
+            --bg-card: #ffffff;
+            --gold-primary: #b8860b;
+            --text-white: #1a1a1a;
+            --text-gray: #555555;
+            --border-color: #dddddd;
+            --nav-bg: rgba(255, 255, 255, 0.95);
+            --chart-grid: #eeeeee;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-white);
+            line-height: 1.6;
+        }
+
+        /* =====================
+           NAVBAR
+        ===================== */
+        header {
+            background-color: var(--nav-bg);
+            backdrop-filter: blur(10px);
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-links {
+            flex: 1;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .nav-btn {
+            background: transparent;
+            border: 1px solid var(--gold-primary);
+            color: var(--gold-primary);
+            padding: 7px 18px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .nav-btn.active {
+            background: var(--gold-primary);
+            color: white;
+        }
+
+        .nav-logo {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            justify-content: center;
+            white-space: nowrap;
+        }
+
+        .nav-logo h1 {
+            font-family: 'Montserrat';
+            letter-spacing: 3px;
+            font-size: 1.4rem;
+        }
+
+        .nav-profile {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            justify-content: flex-end;
+        }
+
+        .icon-btn {
+            font-size: 1.2rem;
+            color: var(--text-gray);
+            cursor: pointer;
+            border: none;
+            background: none;
+        }
+
+        .icon-btn:hover {
+            color: var(--gold-primary);
+        }
+
+        /* =====================
+           LAYOUT
+        ===================== */
+        main {
+            margin-top: 80px;
+            padding: 30px 40px;
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 25px;
+            max-width: 1600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .section-header {
+            font-size: 0.9rem;
+            color: var(--gold-primary);
+            margin-bottom: 20px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        /* =====================
+           CARDS
+        ===================== */
+        .card {
+            background-color: var(--bg-card);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .news-card {
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .news-card:last-child {
+            border-bottom: none;
+        }
+
+        .news-meta {
+            font-size: 0.75rem;
+            color: var(--gold-primary);
+            font-weight: 700;
+        }
+
+        /* =====================
+           SIDEBAR (News)
+        ===================== */
+        aside.card {
+            align-self: start;
+            position: sticky;
+            top: 95px;
+        }
+
+        /* =====================
+           CONTENT AREA
+        ===================== */
+        .content-area {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            min-width: 0; /* prevent overflow */
+        }
+
+        .chart-box {
+            height: 400px;
+            position: relative;
+        }
+
+        .chart-box canvas {
+            width: 100% !important;
+        }
+
+        /* =====================
+           BOTTOM ROW
+        ===================== */
+        .bottom-row {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 25px;
+            align-items: start;
+        }
+
+        .rates-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .rate-card {
+            text-align: center;
+        }
+
+        .rate-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .ounce-card {
+            border: 1px solid var(--gold-primary);
+            text-align: center;
+            background: linear-gradient(145deg, var(--bg-card), var(--bg-dark));
+            min-width: 180px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .ounce-price {
+            font-size: 2rem;
+            font-weight: 800;
+            line-height: 1.1;
+        }
+
+        .trend-up {
+            color: #27ae60;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        /* =====================
+           HAMBURGER MENU
+        ===================== */
+        .hamburger {
+            display: none;
+            background: none;
+            border: 1px solid var(--border-color);
+            color: var(--text-white);
+            border-radius: 4px;
+            width: 36px;
+            height: 36px;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .mobile-nav-drawer {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 999;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .mobile-nav-drawer.open {
+            opacity: 1;
+        }
+
+        .drawer-panel {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 240px;
+            height: 100%;
+            background: var(--bg-card);
+            border-right: 1px solid var(--border-color);
+            padding: 80px 20px 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+
+        .mobile-nav-drawer.open .drawer-panel {
+            transform: translateX(0);
+        }
+
+        .drawer-panel .nav-btn {
+            width: 100%;
+            text-align: left;
+            padding: 10px 16px;
+            font-size: 0.9rem;
+        }
+
+        /* =====================
+           RESPONSIVE — LARGE DESKTOP
+        ===================== */
+        @media (max-width: 1300px) {
+            main {
+                grid-template-columns: 240px 1fr;
+                padding: 25px 30px;
+            }
+        }
+
+        /* =====================
+           RESPONSIVE — TABLET LANDSCAPE
+        ===================== */
+        @media (max-width: 1100px) {
+            main {
+                grid-template-columns: 1fr;
+                padding: 20px 25px;
+            }
+
+            aside.card {
+                position: static;
+            }
+
+            .bottom-row {
+                grid-template-columns: 1fr auto;
+            }
+
+            .chart-box {
+                height: 340px;
+            }
+        }
+
+        /* =====================
+           RESPONSIVE — TABLET PORTRAIT
+        ===================== */
+        @media (max-width: 900px) {
+            header {
+                padding: 13px 20px;
+            }
+
+            .nav-logo h1 {
+                font-size: 1.1rem;
+                letter-spacing: 2px;
+            }
+
+            main {
+                padding: 20px;
+                margin-top: 70px;
+            }
+
+            .chart-box {
+                height: 300px;
+            }
+
+            .rates-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        /* =====================
+           RESPONSIVE — MOBILE
+        ===================== */
+        @media (max-width: 700px) {
+            /* NAVBAR — collapses to single tight row */
+            header {
+                padding: 10px 15px;
+                flex-direction: row;
+                flex-wrap: nowrap;
+                gap: 10px;
+                height: 60px;
+            }
+
+            /* Hide desktop nav links, show hamburger */
+            .nav-links {
+                display: none;
+            }
+
+            .hamburger {
+                display: flex;
+            }
+
+            .mobile-nav-drawer {
+                display: block;
+            }
+
+            .nav-logo {
+                flex: 1;
+                justify-content: center;
+            }
+
+            .nav-logo h1 {
+                font-size: 1rem;
+                letter-spacing: 2px;
+            }
+
+            .nav-logo i {
+                font-size: 1rem;
+            }
+
+            .nav-profile {
+                flex: 0;
+                gap: 14px;
+            }
+
+            /* MAIN LAYOUT */
+            main {
+                margin-top: 60px;
+                padding: 15px;
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            /* CHART */
+            .chart-box {
+                height: 240px;
+                padding: 15px;
+            }
+
+            /* RATES — 3 cols on mobile still, but compact */
+            .rates-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 10px;
+            }
+
+            .card {
+                padding: 14px;
+            }
+
+            .rate-card {
+                padding: 12px 8px;
+            }
+
+            .rate-value {
+                font-size: 1.1rem;
+            }
+
+            /* BOTTOM ROW — stack on small mobile */
+            .bottom-row {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .ounce-card {
+                min-width: unset;
+                padding: 20px;
+                flex-direction: row;
+                justify-content: space-between;
+                text-align: left;
+                align-items: center;
+            }
+
+            .ounce-card .section-header {
+                margin-bottom: 0;
+            }
+
+            .ounce-price {
+                font-size: 1.6rem;
+            }
+
+            .section-header {
+                font-size: 0.82rem;
+                margin-bottom: 15px;
+            }
+
+            .news-card p {
+                font-size: 0.85rem;
+            }
+        }
+
+        /* =====================
+           RESPONSIVE — SMALL MOBILE
+        ===================== */
+        @media (max-width: 420px) {
+            .nav-logo h1 {
+                font-size: 0.9rem;
+                letter-spacing: 1px;
+            }
+
+            main {
+                padding: 10px;
+                gap: 12px;
+            }
+
+            /* Collapse rates to 1 col on tiny screens */
+            .rates-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+
+            .rate-value {
+                font-size: 1rem;
+            }
+
+            .chart-box {
+                height: 200px;
+            }
+
+            .ounce-price {
+                font-size: 1.3rem;
+            }
+
+            .icon-btn {
+                font-size: 1rem;
+            }
+        }
+    </style>
 </head>
 
 <body>
 
-    <!-- !bootstrap js cdn -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- !custom Js -->
-    <script src="assets/js/main.js"></script>
+    <!-- Mobile Navigation Drawer -->
+    <div class="mobile-nav-drawer" id="mobileDrawer">
+        <div class="drawer-panel">
+            <button class="nav-btn active">Home</button>
+            <button class="nav-btn">Prices</button>
+            <button class="nav-btn">Assets</button>
+        </div>
+    </div>
+
+    <header>
+        <!-- Hamburger: visible only on mobile -->
+        <button class="hamburger" id="hamburger" aria-label="Open menu">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        <!-- Desktop nav links -->
+        <div class="nav-links">
+            <button class="nav-btn active">Home</button>
+            <button class="nav-btn">Prices</button>
+            <button class="nav-btn">Assets</button>
+        </div>
+
+        <div class="nav-logo">
+            <i class="fas fa-coins" style="color: var(--gold-primary)"></i>
+            <h1>AURA GOLD</h1>
+        </div>
+
+        <div class="nav-profile">
+            <button class="icon-btn" id="theme-toggle">
+                <i class="fas fa-moon" id="theme-icon"></i>
+            </button>
+            <i class="fas fa-bell icon-btn"></i>
+            <i class="fas fa-user-circle icon-btn"></i>
+        </div>
+    </header>
+
+    <main>
+        <aside class="card">
+            <div class="section-header"><i class="fas fa-globe"></i> Market News</div>
+            <div class="news-card">
+                <p style="font-size: 0.9rem; font-weight: 600;">Gold Hits New Peaks</p>
+                <span class="news-meta">LIVE</span>
+            </div>
+            <div class="news-card">
+                <p style="font-size: 0.9rem;">Global inflation concerns boost demand...</p>
+                <span class="news-meta">2H AGO</span>
+            </div>
+            <div class="news-card">
+                <p style="font-size: 0.9rem;">Central Banks increase gold reserves...</p>
+                <span class="news-meta">5H AGO</span>
+            </div>
+        </aside>
+
+        <section class="content-area">
+            <div class="card chart-box">
+                <div class="section-header"><i class="fas fa-chart-line"></i> XAU / USD Market Trend</div>
+                <canvas id="goldChart"></canvas>
+            </div>
+
+            <div class="bottom-row">
+                <div class="rates-grid">
+                    <div class="card rate-card">
+                        <p style="font-size: 0.75rem; color: var(--text-gray);">24K / Gram</p>
+                        <p class="rate-value">75.50 <small style="color: var(--gold-primary);">USD</small></p>
+                        <p class="trend-up">+0.5%</p>
+                    </div>
+                    <div class="card rate-card">
+                        <p style="font-size: 0.75rem; color: var(--text-gray);">22K / Gram</p>
+                        <p class="rate-value">69.20 <small style="color: var(--gold-primary);">USD</small></p>
+                        <p class="trend-up">+0.3%</p>
+                    </div>
+                    <div class="card rate-card">
+                        <p style="font-size: 0.75rem; color: var(--text-gray);">21K / Gram</p>
+                        <p class="rate-value">66.10 <small style="color: var(--gold-primary);">USD</small></p>
+                        <p class="trend-up">+0.2%</p>
+                    </div>
+                </div>
+
+                <div class="card ounce-card">
+                    <div>
+                        <p class="section-header" style="margin-bottom: 4px;">Gold Ounce</p>
+                        <p class="trend-up">+$14.20 Today</p>
+                    </div>
+                    <p class="ounce-price">$2,351.40</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // --- Mobile Drawer ---
+        const hamburger = document.getElementById('hamburger');
+        const mobileDrawer = document.getElementById('mobileDrawer');
+
+        hamburger.addEventListener('click', () => {
+            mobileDrawer.style.display = 'block';
+            requestAnimationFrame(() => mobileDrawer.classList.add('open'));
+        });
+
+        mobileDrawer.addEventListener('click', (e) => {
+            if (!e.target.closest('.drawer-panel') || e.target.classList.contains('nav-btn')) {
+                mobileDrawer.classList.remove('open');
+                setTimeout(() => mobileDrawer.style.display = 'none', 300);
+            }
+        });
+
+        // --- Theme Toggle ---
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeIcon = document.getElementById('theme-icon');
+        const bodyEl = document.documentElement;
+
+        themeToggle.addEventListener('click', () => {
+            if (bodyEl.getAttribute('data-theme') === 'light') {
+                bodyEl.removeAttribute('data-theme');
+                themeIcon.classList.replace('fa-sun', 'fa-moon');
+            } else {
+                bodyEl.setAttribute('data-theme', 'light');
+                themeIcon.classList.replace('fa-moon', 'fa-sun');
+            }
+            updateChartTheme();
+        });
+
+        // --- Chart ---
+        let goldChart;
+        const ctx = document.getElementById('goldChart').getContext('2d');
+
+        function initChart() {
+            const isLight = bodyEl.getAttribute('data-theme') === 'light';
+            const gridColor = isLight ? '#eeeeee' : '#222';
+            const textColor = isLight ? '#555' : '#666';
+
+            goldChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00'],
+                    datasets: [{
+                        data: [2330, 2335, 2348, 2342, 2355, 2350, 2351.4],
+                        borderColor: '#d4af37',
+                        borderWidth: 3,
+                        fill: true,
+                        backgroundColor: 'rgba(212, 175, 55, 0.1)',
+                        tension: 0.4,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { grid: { color: gridColor }, ticks: { color: textColor } },
+                        x: { grid: { display: false }, ticks: { color: textColor } }
+                    }
+                }
+            });
+        }
+
+        function updateChartTheme() {
+            const isLight = bodyEl.getAttribute('data-theme') === 'light';
+            goldChart.options.scales.y.grid.color = isLight ? '#eeeeee' : '#222';
+            goldChart.options.scales.y.ticks.color = isLight ? '#555' : '#666';
+            goldChart.options.scales.x.ticks.color = isLight ? '#555' : '#666';
+            goldChart.update();
+        }
+
+        initChart();
+    </script>
 </body>
 
 </html>

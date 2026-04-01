@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="title" content="Login | Gold Track 24K - Secure Vault Access">
+    <meta name="description"
+        content="Access your 24K gold portfolio. Secure login to Gold Track to manage your assets, monitor real-time prices, and secure your digital vault.">
+    <title>24K Authentication</title>
+    <!-- !font awesome cdn -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+        integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!--!bootstrap css cdn  -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css">
+    <!-- !custom css -->
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <!-- !media query css -->
+    <link rel="stylesheet" href="../assets/css/media.css">
+</head>
+
+<body>
+
+    <div class="container-fluid d-flex align-items-center justify-content-center min-vh-100" id="authBox">
+
+        <a href="../index.html" class="back-home position-absolute top-0 start-0 m-4 text-decoration-none">
+            <i class="fas fa-arrow-left me-2"></i> Back to Home
+        </a>
+
+        <div class="flip-container" id="card">
+
+            <!-- !!!!!!!!!!!!!header login form!!!!!!!!!!!!!!!!!!!!!!! -->
+
+            <div class="auth-box login-box d-flex flex-column  shadow-lg border-0 p-4 p-md-5">
+                <div class="text-center mb-4">
+                    <div class="logo display-6 fw-bold mb-1"><img src="../assets/img/logo.png" alt="24K logo"
+                            class="img-fluid object-fit-cover w-25"></div>
+                    <p class="text-secondary small text-uppercase ls-2">Secure Login</p>
+                </div>
+                <!-- !!!!!!!!!!!!!login form!!!!!!!!!!!!!!!!!!!!!!! -->
+                <form id="logForm">
+                    <div class="mb-3">
+                        <div class="input-group-custom position-relative mb-3">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" id="logEmail" class="form-control py-3 px-5 rounded-5" placeholder="Email Address"
+                                required>
+                                <p class="small text-danger" id="logEmail-error"></p>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <div class="input-group-custom position-relative mb-3">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="logPass" class="form-control py-3 px-5 rounded-5" placeholder="Password"
+                                required>
+                                <p class="small text-danger" id="logPass-error"></p>
+                        </div>
+                    </div>
+                    <button class="btn btn-gold w-100 py-3 fw-bold text-dark rounded-5">LOGIN</button>
+                </form>
+
+                <div class="switch-text mt-auto text-center pt-4">
+                    <span class="text-secondary">New to 24K Gold?</span>
+                    <span class="switch-link text-gold ms-1 fw-bold" onclick="FLIP_CARD()">Create Account</span>
+                </div>
+            </div>
+            <!-- !!!!!!!!!!!!!header register form!!!!!!!!!!!!!!!!!!!!!!! -->
+
+            <div class="auth-box register-box  shadow-lg border-0 p-4 p-md-5">
+                <div class="text-center mb-4">
+                    <div class="logo display-6 fw-bold mb-1"><img src="../assets/img/logo.png" alt="24K logo"
+                            class="img-fluid object-fit-cover w-25"></div>
+                    <p class="title small text-uppercase ls-2">Create Identity</p>
+                </div>
+
+                <!-- !!!!!!!!!!!!!register form!!!!!!!!!!!!!!!!!!!!!!! -->
+                <form id="registerForm">
+                    <div class="mb-3">
+                        <div class="input-group-custom position-relative mb-3">
+                            <i class="fas fa-user"></i>
+                            <input type="text" id="fullName" class="form-control py-3 px-5 rounded-5"
+                                placeholder="Full Name" required>
+                            <p class="small text-danger ms-3 mt-2" id="fullName-error"></p>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="input-group-custom position-relative mb-3">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" id="regEmail" class="form-control py-3 px-5 rounded-5"
+                                placeholder="Email Address" required>
+                            <p class="small text-danger ms-3 mt-2" id="regEmail-error"></p>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="input-group-custom position-relative mb-3">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="regPass" class="form-control py-3 px-5 rounded-5"
+                                placeholder="Create Password" required>
+                            <p class="small text-danger ms-3 mt-2" id="regPass-error"></p>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <div class="input-group-custom position-relative mb-3">
+                            <i class="fas fa-shield-alt"></i>
+                            <input type="password" id="confirmPass" class="form-control py-3 px-5 rounded-5"
+                                placeholder="Confirm Password" required>
+                            <p class="small text-danger ms-3 mt-2" id="confirmPass-error"></p>
+                        </div>
+                    </div>
+                    <button class="btn btn-gold w-100 py-3 fw-bold text-dark rounded-5">REGISTER NOW</button>
+                </form>
+
+                <div class="switch-text mt-auto text-center pt-4">
+                    <span class="text-secondary">Already member?</span>
+                    <span class="switch-link text-gold ms-1 fw-bold" onclick="FLIP_CARD()">Back to Login</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="../assets/js/main.js"></script>
+    <script>
+        const FLIP_CARD = () => document.getElementById('card').classList.toggle('flipped');
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,249 @@
+/* !public css!!!!!!!!!!!!!!!!!!!! */
+/* ?font?????????*/
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
+/* ?root????????? */
+:root {
+    --bg-dark: #0a0a0a;
+    --bg-card: #141414;
+    --gold-primary: #d4af37;
+    --text-white: #ffffff;
+    --text-gray: #a0a0a0;
+    --border-color: #222;
+    --nav-bg: rgba(20, 20, 20, 0.95);
+    --chart-grid: #222;
+}
+
+[data-theme="light"] {
+    --bg-dark: #f4f4f7;
+    --bg-card: #ffffff;
+    --gold-primary: #b8860b;
+    --text-white: #1a1a1a;
+    --text-gray: #555555;
+    --border-color: #dddddd;
+    --nav-bg: rgba(255, 255, 255, 0.95);
+    --chart-grid: #eeeeee;
+}
+
+/* ?class??????*/
+.text-gold {
+    color: var(--gold-primary);
+}
+
+/* ?body????*/
+body {
+    font-family: "Inter", sans-serif;
+    background-color: var(--bg-dark);
+    overflow-x: hidden;
+}
+
+/* TODO:Assets page:::::::::::::::::::::::::::::::::::::::::::::::::: */
+/* !header !!!!!!!!!*/
+/* !navbar !!!!!!!!!*/
+header nav.navbar,
+header aside,
+header .filter-bar {
+    background-color: var(--bg-card);
+}
+
+header nav.navbar {
+    border-bottom: 1px solid var(--border-color);
+
+}
+
+.nav-item .nav-link {
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: .5s;
+    position: relative;
+}
+
+.navbar-collapse .navbar-nav:nth-child(1) .nav-link::after,
+.navbar-collapse .navbar-nav:nth-child(1) .nav-link.active {
+    content: '';
+    position: absolute;
+    bottom: -.7rem;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background-color: var(--gold-primary);
+    transition: 1.25s;
+}
+
+.nav-item .nav-link:hover,
+.nav-item .nav-link.active {
+    color: var(--gold-primary);
+}
+
+.navbar-collapse .navbar-nav:nth-child(1) .nav-link:hover::after {
+    width: 100%;
+}
+
+nav.navbar .navbar-brand {
+    word-spacing: .6rem;
+    letter-spacing: .3rem;
+}
+
+nav.navbar .navbar-brand:hover {
+    color: var(--gold-primary);
+}
+
+/* !aside!!!!!!! */
+header aside {
+    height: 40rem;
+    border-right: 1px solid var(--border-color);
+}
+
+header aside p {
+    font-size: 0.8rem;
+    letter-spacing: 2px;
+}
+
+header aside div.border-bottom {
+    border-color: var(--gold-primary) !important;
+}
+
+header aside span {
+    font-size: .9rem;
+    color: var(--text-white);
+    font-weight: 600;
+}
+
+/* ************DOM css************* */
+.text-success {
+    color: #28a745;
+}
+
+.text-danger {
+    color: #dc3545;
+}
+
+/* ******************************* */
+/* !!!!!!!!header body!!!!!!!! */
+/* !!!!!!!!!!!!!!search!!!!!!!! */
+header .filter-bar {
+    width: 98%;
+    border: 1px solid var(--border-color);
+    color: var(--text-gray);
+}
+
+header .filter-bar input::placeholder {
+    color: var(--text-gray) !important;
+    font-size: .85rem;
+}
+
+header .filter-bar input.form-control {
+    border-color: var(--border-color);
+    color: var(--text-gray);
+}
+
+header .filter-bar i {
+    top: 30%;
+    left: 2%;
+}
+
+header .filter-bar input.form-control:focus {
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+header .filter-bar select {
+    background-color: var(--bg-card);
+    border-color: var(--border-color) !important;
+    color: var(--text-gray);
+    font-size: .8rem;
+    cursor: pointer;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+/* !!!!!!!!!!!!!!Add New Asset!!!!! */
+header .add-asset-card {
+    background-color: transparent;
+    border: 2px dashed var(--border-color);
+    cursor: pointer;
+    height: 27.5rem;
+    opacity: .7;
+    transition: .5s;
+}
+
+header .add-asset-card:hover {
+    opacity: 1;
+    border-color: var(--gold-primary);
+    background: rgba(212, 175, 55, 0.05);
+    transform: translateY(-10px);
+}
+
+header .add-asset-card .add-icon {
+    width: 50px;
+    height: 50px;
+    background: var(--bg-card);
+}
+
+/* !!!!!!!!!!!!!popup form!!!!!!!!!!!!!!!!!!! */
+header .modal .modal-content{
+    background-color: var(--bg-card);
+}
+header .btn-gold {
+    background-color: var(--gold-primary);
+    border-color: var(--gold-primary);
+}
+
+header .btn-gold:hover {
+    background-color: #b8962d;
+    border-color: #b8962d;
+}
+
+header .modal-content .form-control:focus,
+header .modal-content .form-select:focus {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-color: var(--gold-primary);
+    box-shadow: none;
+}
+
+/* !!!!!!!!!!!!!1assets card!!!!!!!!!!!!!!! */
+header .asset-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    transition: 1s;
+}
+
+header .asset-card:hover {
+    border-color: var(--gold-primary);
+    transform: translateY(-10px);
+}
+
+header .asset-card img {
+    border-radius: 20px 20px 0 0;
+}
+
+header .pnl-box {
+    background: rgba(255, 255, 255, 0.03);
+    font-size: 0.8rem;
+    border: 1px solid var(--border-color);
+}
+
+header .pnl-item strong {
+    font-size: 0.95rem;
+}
+
+header .pnl-indicator {
+    font-size: 0.85rem;
+    color: var(--text-white);
+}
+
+/* ************DOM css************* */
+.profit-bg {
+    background: rgba(46, 204, 113, 0.1);
+    color: #2ecc71;
+    border: 1px solid rgba(46, 204, 113, 0.2);
+}
+
+.loss-bg {
+    background: rgba(231, 76, 60, 0.1);
+    color: #e74c3c;
+    border: 1px solid rgba(231, 76, 60, 0.2);
+}
+
+/* ******************************* */

@@ -89,6 +89,7 @@
                             <option selected>All Types</option>
                             <option value="Bars">Bars</option>
                             <option value="Coins">Coins</option>
+                            <option value="Jewelry">Jewelry</option>
                         </select>
                         <select class="form-select w-auto" id="karat">
                             <option selected>All Karats</option>
@@ -96,6 +97,7 @@
                             <option value="21K">21K</option>
                             <option value="18K">18K</option>
                         </select>
+                        
                     </div>
 
                     <div class="row g-4">
@@ -161,7 +163,10 @@
                                                     <select class="form-select bg-dark text-white border-secondary">
                                                         <option value="Bar">Bar</option>
                                                         <option value="Coin">Coin</option>
+                                                        <option value="Jewelry">Jewelry</option>
                                                     </select>
+                                                    <input type="file" accept="image/*" class="form-control bg-transparent text-white border-secondary mt-3" id="asset-img">
+                                                    <img id="img-preview" src="" alt="preview">
                                                 </div>
                                                 <div class="col-md-6 mb-3">
                                                     <label class="form-label">Karat</label>

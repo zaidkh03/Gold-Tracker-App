@@ -4,12 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aura Gold | Premium Marketplace</title>
+    <link rel="shortcut icon" href="assets/img/logo.webp" type="image/x-icon">
+    <title>24K | Home</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Montserrat:wght@700&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-
-
+    <link rel="stylesheet" href="assets/css/home.css">
 </head>
 
 <body>
@@ -17,9 +17,12 @@
     <!-- Mobile Navigation Drawer -->
     <div class="mobile-nav-drawer" id="mobileDrawer">
         <div class="drawer-panel">
-            <button class="nav-btn active">Home</button>
-            <button class="nav-btn">Prices</button>
-            <button class="nav-btn">Assets</button>
+            <a href="index.html">
+                <button class="nav-btn active">Home</button>
+            </a>
+            <a href="pages/assets.html">
+                <button class="nav-btn">Assets</button>
+            </a>
         </div>
     </div>
 
@@ -31,22 +34,26 @@
 
         <!-- Desktop nav links -->
         <div class="nav-links">
-            <button class="nav-btn active">Home</button>
-            <button class="nav-btn">Prices</button>
-            <button class="nav-btn">Assets</button>
+            <a href="index.html">
+                <button class="nav-btn active">Home</button>
+            </a>
+            <a href="pages/assets.html">
+                <button class="nav-btn">Assets</button>
+            </a>
         </div>
 
         <div class="nav-logo">
             <i class="fas fa-coins" style="color: var(--gold-primary)"></i>
-            <h1>AURA GOLD</h1>
+            <h1>24K GOLD</h1>
         </div>
 
         <div class="nav-profile">
             <button class="icon-btn" id="theme-toggle">
                 <i class="fas fa-moon" id="theme-icon"></i>
             </button>
-            <i class="fas fa-bell icon-btn"></i>
-            <i class="fas fa-user-circle icon-btn"></i>
+            <a href="pages/login-register.html">
+                <i class="fas fa-user-circle icon-btn"></i>
+            </a>
         </div>
     </header>
 

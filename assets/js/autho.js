@@ -1,7 +1,14 @@
 // ???????????flip card??????????????/
-const FLIP_CARD = () => document.getElementById('card').classList.toggle('flipped');
+const FLIP_CARD = () => {
+    const card = document.getElementById('card');
+    card.classList.toggle('flipped');
 
-
+    if (card.classList.contains('flipped')) {
+        card.style.minHeight = "48rem";
+    } else {
+        card.style.minHeight = "37.5rem";
+    }
+};
 // TODO:::::::::::::::::::::::::::::::::::: Regster:::::::::::::::::::::::::::::::::::::::::
 document.getElementById("registerForm").addEventListener("submit", (e) => {
     e.preventDefault();

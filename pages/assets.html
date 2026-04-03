@@ -4,6 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Track your personal gold assets in real-time. Monitor live gold prices, view P&L on your bars, coins, and jewelry, and stay updated on market movements.">
+    <meta name="keywords"
+        content="gold price, gold tracker, gold assets, XAU, gold portfolio, live gold price, gold investment">
     <link rel="shortcut icon" href="../assets/img/logo.png" type="image/x-icon">
     <title>24K | Assets Management</title>
     <!-- <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet"> -->
@@ -21,11 +25,17 @@
 
 <body>
 
+    <!-- !start preloader -->
+    <div class="preloader position-fixed vh-100 w-100 d-flex justify-content-center align-items-center" id="preloader">
+        <img src="../assets/img/logo.webp" alt="24k logo" class="img-fluid loader-logo">
+    </div>
+    <!-- !end preloader -->
+
     <!-- !satrt header -->
-    <header class="vh-100">
+    <header class="fa-8">
 
         <!-- !start nav -->
-        <nav class="navbar navbar-expand-lg navbar-dark py-3 shadow-lg ">
+        <nav class="navbar navbar-expand-lg navbar-dark py-3">
             <div class="container-fluid d-flex align-items-center">
 
                 <a class="navbar-brand text-gold fw-bold d-lg-none me-auto" href="../index.html">24K GOLD</a>
@@ -37,8 +47,8 @@
 
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
-                        <li class="nav-item me-2"><a class="nav-link" href="../index.html">Home</a></li>
-                        <li class="nav-item me-2"><a class="nav-link" href="assets.html">My Assets</a></li>
+                        <li class="nav-item me-2"><a class="nav-link page" href="../index.html">Home</a></li>
+                        <li class="nav-item me-2"><a class="nav-link page" href="assets.html">My Assets</a></li>
                     </ul>
 
                     <a class="navbar-brand mx-auto text-gold fw-bold d-none d-lg-block" href="../index.html">24K
@@ -46,10 +56,12 @@
 
                     <ul class="navbar-nav ms-auto d-flex flex-row align-items-center me-lg-4">
                         <li class="nav-item px-2">
-                            <a class="nav-link" href="#"><i class="fa-solid fa-moon fs-5"></i></a>
+                            <a class="nav-link" href="#" id="theme-toggle"><i
+                                    class="fa-solid fa-circle-half-stroke fs-5"></i></a>
                         </li>
                         <li class="nav-item px-2">
-                            <a class="nav-link" href="#" id="light"><i class="fa-solid fa-circle-user fs-5"></i></a>
+                            <a class="logBtn fw-semibold text-white btn" href="login-register.html" id="authBtn">Log
+                                in</a>
                         </li>
                     </ul>
                 </div>
@@ -66,11 +78,13 @@
                     <aside class="p-1">
                         <p class="text-gold fw-bolder my-4 ms-4">LIVE MARKET RATES</p>
                         <!-- TODO:JS:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: -->
-                        <!-- <div class=" border-bottom d-flex justify-content-around align-items-center py-3">
+                        <div id="aside">
+                            <!-- <div class=" border-bottom d-flex justify-content-around align-items-center py-3">
                             <span id="asset-name">Gold 24K</span>
                             <span id="asset-price fw-bold">$75.52</span>
                             <span id="asset-change">+1.2%</span>
                         </div> -->
+                        </div>
                         <!-- TODO:JS:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: -->
                     </aside>
                 </div>
@@ -87,8 +101,9 @@
                         </div>
                         <select class="form-select w-auto" id="types">
                             <option selected>All Types</option>
-                            <option value="Bars">Bars</option>
-                            <option value="Coins">Coins</option>
+                            <option value="Bar">Bar</option>
+                            <option value="EnglishLira">English Lira</option>
+                            <option value="RashadiLira">Rashadi Lira</option>
                             <option value="Jewelry">Jewelry</option>
                         </select>
                         <select class="form-select w-auto" id="karat">
@@ -97,10 +112,10 @@
                             <option value="21K">21K</option>
                             <option value="18K">18K</option>
                         </select>
-                        
+
                     </div>
 
-                    <div class="row g-4">
+                    <div class="row g-4" id="rowCard">
                         <!-- TODO: DOM card::::::::::::::::::::::::::;;;; -->
                         <!-- <div class="col-12 col-md-6 col-lg-4">
                             <div class="asset-card text-center rounded-4 pb-3" data-type="Bar" data-karat="24K">
@@ -109,15 +124,15 @@
                                     <img src="../assets/img/test assats.jpg" class="img-fluid fit-object-cover"
                                         alt="Asset">
                                 </div>
-                                <p class="text-white fw-semibold mb-0 fs-5">Bar</p>
+                                <p class="custom-text-white fw-semibold mb-0 fs-5">Bar</p>
                                 <p class="text-gold small">1 KG | 24K Fine Gold</p>
 
                                 <div
                                     class="pnl-box d-flex justify-content-around align-itms-center px-2 py-3 w-75 m-auto rounded-3 mb-2">
                                     <div class="pnl-item text-gold small"><span class="d-block mb-2">Bought
-                                            At</span><strong class="text-white">1-APR-26</strong></div>
+                                            At</span><strong class="custom-text-white">1-APR-26</strong></div>
                                     <div class="pnl-item text-gold small"><span class="d-block mb-2">Bought
-                                            Price</span><strong class="text-white">$2,351.40</strong></div>
+                                            Price</span><strong class="custom-text-white">$2,351.40</strong></div>
                                 </div>
                                 <div class="pnl-indicator profit-bg w-75 m-auto p-2 rounded d-flex align-items-center justify-content-center"
                                     id="pnl-indicator"> +$201.40 (9.3%)
@@ -145,7 +160,7 @@
                             <div class="modal-dialog  modal-dialog-centered">
                                 <div class="modal-content text-white border-secondary">
                                     <div class="modal-header border-secondary">
-                                        <h5 class="modal-title text-gold">Add New Asset</h5>
+                                        <p class="modal-title text-gold">Add New Asset</p>
                                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                                             aria-label="Close"></button>
                                     </div>
@@ -153,40 +168,46 @@
                                         <form id="addAssetForm">
                                             <div class="mb-3">
                                                 <label class="form-label">Asset Name</label>
-                                                <input type="text"
+                                                <input type="text" id="assetName"
                                                     class="form-control bg-transparent text-white border-secondary"
                                                     placeholder="e.g. PAMP Suisse Bar">
                                             </div>
                                             <div class="row">
                                                 <div class="col-md-6 mb-3">
                                                     <label class="form-label">Type</label>
-                                                    <select class="form-select bg-dark text-white border-secondary">
+                                                    <select id="assetType"
+                                                        class="form-select bg-dark text-white border-secondary">
                                                         <option value="Bar">Bar</option>
-                                                        <option value="Coin">Coin</option>
+                                                        <option value="EnglishLira">English Lira</option>
+                                                        <option value="RashadiLira">Rashadi Lira</option>
                                                         <option value="Jewelry">Jewelry</option>
                                                     </select>
-                                                    <input type="file" accept="image/*" class="form-control bg-transparent text-white border-secondary mt-3" id="asset-img">
+                                                    <input type="file" accept="image/*"
+                                                        class="form-control bg-transparent text-white border-secondary mt-3"
+                                                        id="asset-img">
                                                     <img id="img-preview" src="" alt="preview">
                                                 </div>
                                                 <div class="col-md-6 mb-3">
                                                     <label class="form-label">Karat</label>
-                                                    <select class="form-select bg-dark text-white border-secondary">
+                                                    <select id="assetKarat"
+                                                        class="form-select bg-dark text-white border-secondary">
                                                         <option value="24K">24K</option>
-                                                        <option value="22K">22K</option>
                                                         <option value="21K">21K</option>
+                                                        <option value="18K">18K</option>
                                                     </select>
                                                 </div>
                                             </div>
                                             <div class="mb-3">
                                                 <label class="form-label">Purchase Date</label>
-                                                <input type="date"
+                                                <input type="date" id="purchaseDate"
                                                     class="form-control bg-transparent text-white border-secondary">
                                             </div>
                                             <div class="mb-3">
                                                 <label class="form-label">Purchase Price ($)</label>
-                                                <input type="number"
+                                                <input type="number" id="purchasePrice"
                                                     class="form-control bg-transparent text-white border-secondary"
                                                     placeholder="0.00">
+
                                             </div>
                                         </form>
                                     </div>
@@ -211,6 +232,20 @@
 
     </header>
     <!-- !end header -->
+
+    <!-- !start footer -->
+    <footer class="mt-3 py-2 text-center">
+        <div class="container-fluid">
+            <p class="pt-3 pb-1">&copy;2026 <a href="https://www.linkedin.com/in/leen-saleh/" target="_blank"
+                    class="text-gold">Leen</a> ,
+                <a href="https://www.linkedin.com/in/lujain-majid/" target="_blank" class="text-gold">Lujain</a> & <a
+                    href="https://www.linkedin.com/in/zaidalkhalili/" target="_blank" class="text-gold">Zaid</a>. All
+                rights reserved.
+                Unauthorized use or duplication is prohibited.
+            </p>
+        </div>
+    </footer>
+    <!-- !end footer -->
 
     <!-- !bootsrap js cdn -->
     <script src="../assets/js/main.js"></script>

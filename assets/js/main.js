@@ -1,308 +1,680 @@
-<<<<<<< Updated upstream
-// TODO::::::::::::::::::::::::::::: handle localstorge::::::::::::::::::::::::::::::::::::::::::::::::
-// !!!!!!!!!!!!fetch data!!!!!!!!!!!!!!!!
-let priceData = [];
-// localStorage.clear();
+// TODO::::::::::::::::::::::::::::::preloader:::::::::::::::::::::::::::::::::::::::::::::::::
+window.addEventListener("load", () => {
+    const PRELOADER = document.getElementById("preloader");
 
-const GOLD_PRICE_DATA = async () => {
-    try {
-        const REQUEST = await fetch(`https://api.gold-api.com/price/XAU`);
-        const RESPONSE = await REQUEST.json();
-        return RESPONSE;
-    } catch (error) {
-        alert(error);
-    }
-}
+    setInterval(() => {
+        PRELOADER.classList.add("preloader-hidden");
+    }, 1000)
+})
 
-// !!!!!!!!!!!!!!!!!!!!! store in localstorge!!!!!!!!!!!!!!!!!!!!!!
-const STORGE = async () => {
-    const PRICE = await GOLD_PRICE_DATA();
+// TODO:::::::::::::::::::::::::::::::Active page:::::::::::::::::::::::::::::::::::::::::::::::
 
-    const DATA = {
-        price: PRICE,
-        time: Date.now()
+const LINKS = document.querySelectorAll(".page");
+const CURR_PAGE = window.location.pathname.split("/").pop();
+
+LINKS.forEach(e => {
+    const LINKS_PAGE = e.getAttribute("href").split("/").pop();
+
+
+    if (LINKS_PAGE === CURR_PAGE) e.classList.add("active");
+    else e.classList.remove("active");
+})
+
+// TODO:::::::::::::::::::::::::::dark/light:::::::::::::::::::::::::::::::::::::::::::::::::
+
+const THEME_TOGGLE = document.getElementById("theme-toggle");
+const BODY = document.documentElement;
+
+const CURR_THEME = localStorage.getItem("theme");
+
+THEME_TOGGLE.addEventListener("click", (e) => {
+    e.preventDefault();
+
+    let newTheme = BODY.getAttribute("data-theme") === "dark" ? "light" : "dark";
+
+    BODY.setAttribute("data-theme", newTheme);
+    localStorage.setItem("theme", newTheme);
+})
+
+// TODO:::::::::::::::::::::::::: assets card data handle ::::::::::::::::::::::::::::::::::::
+
+document.addEventListener('DOMContentLoaded', () => {
+    const ASSETS_FORM = document.getElementById('addAssetForm');
+    const ASSETS_CARDS = document.getElementById('rowCard');
+    const IMG_INPUT = document.getElementById('asset-img');
+    const IMG_PREVIEW = document.getElementById('img-preview');
+
+    if (!ASSETS_FORM || !ASSETS_CARDS) return;
+
+    const LOAD_ASSETS = () => {
+        const ASSETS = JSON.parse(localStorage.getItem('myAssets')) || [];
+        ASSETS.forEach(asset => DISPLAY_CARD(asset));
     };
 
-    localStorage.setItem("price", JSON.stringify(DATA));
-    priceData = PRICE.price;
+    let currentBase64 = "";
 
-    
-console.log(priceData);
-console.log(DATA);
-}
+    IMG_INPUT.addEventListener('change', () => {
+        const FILE = IMG_INPUT.files[0];
+        if (FILE) {
+            const RENDER = new FileReader();
+            RENDER.onload = (e) => {
+                currentBase64 = e.target.result;
+                IMG_PREVIEW.src = currentBase64;
+                IMG_PREVIEW.style.display = 'block';
+            };
+            RENDER.readAsDataURL(FILE);
+        }
+    });
 
-// !!!!!!!!!!!!!!!!!!!!!check localstorge!!!!!!!!!!!!!!!!
-const CHECK = async () => {
-    let data = JSON.parse(localStorage.getItem("price"));
+    ASSETS_FORM.addEventListener('submit', (e) => {
+        e.preventDefault();
 
-    if (data && (Date.now() - data.time < 6 * 60 * 1000)) {
-        priceData = data.price;
+        const NEW_ASSET = {
+            id: Date.now(),
+            name: document.getElementById('assetName').value,
+            type: document.getElementById('assetType').value,
+            karat: document.getElementById('assetKarat').value,
+            date: document.getElementById('purchaseDate').value,
+            price: document.getElementById('purchasePrice').value,
+            image: currentBase64,
+        };
+
+        const ASSETS = JSON.parse(localStorage.getItem('myAssets')) || [];
+        ASSETS.push(NEW_ASSET);
+        localStorage.setItem('myAssets', JSON.stringify(ASSETS));
+
+        DISPLAY_CARD(NEW_ASSET);
+        ASSETS_FORM.reset();
+        currentBase64 = "";
+        IMG_PREVIEW.src = "";
+        IMG_PREVIEW.style.display = 'none';
+
+        const MODAL_EL = document.getElementById('addAssetModal');
+        const MODAL = bootstrap.Modal.getInstance(MODAL_EL);
+        if (MODAL) MODAL.hide();
+    });
+
+    LOAD_ASSETS();
+});
+
+const GET_CURRENT_PRICES = (goldPricePerOz) => {
+    const gram24 = goldPricePerOz / 31.1035;
+    return {
+        "24K": gram24,
+        "22K": gram24 * (22 / 24),
+        "21K": gram24 * (21 / 24),
+        "18K": gram24 * (18 / 24),
+        "EnglishLira": gram24 * 0.9167 * 8,
+        "RashadiLira": gram24 * 0.9167 * 7.2,
+    };
+};
+
+const GET_ASSET_PRICE_KEY = (type, karat) => {
+    if (type === "EnglishLira") return "EnglishLira";
+    if (type === "RashadiLira") return "RashadiLira";
+    return karat;
+};
+
+const BUILD_PNL = (currentVal, purchasePrice) => {
+    const diff = currentVal - parseFloat(purchasePrice);
+    const diffPercent = (diff / parseFloat(purchasePrice)) * 100;
+
+    if (diff >= 0) {
+        return {
+            html: `+$${diff.toFixed(2)} (${diffPercent.toFixed(2)}%)`,
+            cls: "profit-bg",
+        };
     } else {
-        await STORGE();
+        return {
+            html: `-$${Math.abs(diff).toFixed(2)} (${Math.abs(diffPercent).toFixed(2)}%)`,
+            cls: "loss-bg",
+        };
     }
-}
+};
 
-// !!!!!!!!!!!!!!!! auto fetch (6 min)!!!!!!!!!!!
-const START_FETCH = () => {
-    CHECK();
-    setInterval(() => {
-        CHECK();
-    }, 6 * 60 * 1000);
-}
+const DISPLAY_CARD = (asset) => {
+    const ASSETS_CARDS = document.getElementById('rowCard');
+    if (!ASSETS_CARDS) return;
 
-START_FETCH();
+    const currentPrice = window.currentGoldPrice;
+    let pnlHTML = "Calculating...";
+    let pnlClass = "";
 
+    if (currentPrice) {
+        const prices = GET_CURRENT_PRICES(currentPrice);
+        const key = GET_ASSET_PRICE_KEY(asset.type, asset.karat);
+        const pnl = BUILD_PNL(prices[key] ?? prices["24K"], asset.price);
+        pnlHTML = pnl.html;
+        pnlClass = pnl.cls;
+    }
 
+    const CARD = `
+    <div class="col-12 col-md-6 col-lg-4 mb-4" id="asset-${asset.id}">
+        <div class="asset-card text-center rounded-4 pb-3 position-relative"
+             data-type="${asset.type}"
+             data-karat="${asset.karat}"
+             data-purchase-price="${asset.price}">
+            <button onclick="deleteAsset(${asset.id})"
+                    class="btn btn-sm btn-outline-danger position-absolute end-0 top-0 m-2 border-0"
+                    style="z-index: 10;">
+                <i class="bi bi-trash"></i> ✕
+            </button>
+            <div class="img-placeholder mx-auto mb-3 d-flex align-items-center justify-content-center">
+                <img src="${asset.image}" class="img-fluid fit-object-cover" alt="Asset">
+            </div>
+            <p class="custom-text-white fw-semibold mb-0 fs-5">${asset.name}</p>
+            <p class="text-gold small">${asset.type} | ${asset.karat} Fine Gold</p>
+            <div class="pnl-box d-flex justify-content-around align-items-center px-2 py-3 w-75 m-auto rounded-3 mb-2">
+                <div class="pnl-item text-gold small">
+                    <span class="d-block mb-2">Bought At</span>
+                    <strong class="custom-text-white">${asset.date}</strong>
+                </div>
+                <div class="pnl-item text-gold small">
+                    <span class="d-block mb-2">Price</span>
+                    <strong class="custom-text-white">$${parseFloat(asset.price).toLocaleString()}</strong>
+                </div>
+            </div>
+            <div class="pnl-indicator ${pnlClass} w-75 m-auto p-2 rounded d-flex align-items-center justify-content-center"
+                 id="pnl-${asset.id}">
+                ${pnlHTML}
+            </div>
+        </div>
+    </div>`;
 
+    ASSETS_CARDS.insertAdjacentHTML('beforeend', CARD);
+};
 
+const UPDATE_PNL = () => {
+    const currentPrice = window.currentGoldPrice;
+    if (!currentPrice) return;
 
-=======
-// TODO:::::::::::::::::::::::::::::::::::: Regster:::::::::::::::::::::::::::::::::::::::::
-const REGISTER_FORM = document.getElementById("registerForm");
-if (REGISTER_FORM) {
-    REGISTER_FORM.addEventListener("submit", (e) => {
-        e.preventDefault();
-        // ????????values?????????????
-        const FULL_NAME = document.getElementById("fullName").value.trim();
-        const REG_EMAIL = document.getElementById("regEmail").value.trim();
-        const REG_PASS = document.getElementById("regPass").value.trim();
-        const CONFIRM_PASS = document.getElementById("confirmPass").value.trim();
+    const prices = GET_CURRENT_PRICES(currentPrice);
 
-        // ???????error????????????
-        const FULL_NAME_ERROR = document.getElementById("fullName-error");
-        const REG_EMAIL_ERROR = document.getElementById("regEmail-error");
-        const REG_PASS_ERROR = document.getElementById("regPass-error");
-        const CONFIRM_PASS_ERROR = document.getElementById("confirmPass-error");
+    document.querySelectorAll('.asset-card').forEach(card => {
+        const wrapper = card.closest('[id^="asset-"]');
+        if (!wrapper) return;
 
-        // ??????????reset error???????
-        FULL_NAME_ERROR.textContent = "";
-        FULL_NAME_ERROR.style.visibility = "hidden";
-        REG_EMAIL_ERROR.textContent = "";
-        REG_EMAIL_ERROR.style.visibility = "hidden";
-        REG_PASS_ERROR.textContent = "";
-        REG_PASS_ERROR.style.visibility = "hidden";
-        CONFIRM_PASS_ERROR.textContent = "";
-        CONFIRM_PASS_ERROR.style.visibility = "hidden";
+        const id = wrapper.id.replace('asset-', '');
+        const pPrice = parseFloat(card.dataset.purchasePrice);
+        const karat = card.dataset.karat;
+        const type = card.dataset.type;
+        const pnlIndicator = document.getElementById(`pnl-${id}`);
 
-        // ?????????????validation?????????????????????
-        let flag = true;
-        // !!!!!!!!!!!!!name!!!!!!!!!!!!!!
-        const VALIDATION_NAME = (name, msg) => {
-            let nameError = [];
-            if (!name) {
-                msg.textContent = "Required field";
-                msg.style.visibility = "visible";
-                flag = false;
-                return "";
-            }
+        if (!pnlIndicator || isNaN(pPrice)) return;
 
-            if (!/^[A-Za-z\s]+$/.test(name)) {
-                nameError.push("Only letters allowed");
-                flag = false;
-            }
+        const key = GET_ASSET_PRICE_KEY(type, karat);
+        const currentVal = prices[key] ?? prices["24K"];
+        const pnl = BUILD_PNL(currentVal, pPrice);
 
-            if (name.length < 4) {
-                nameError.push("Must be at least 4 character");
-                flag = false;
-            }
-
-            if (nameError.length > 0) {
-                msg.innerHTML = nameError.join("<br>");
-                msg.style.visibility = "visible";
-                flag = false;
-            }
-            return name;
-        }
-
-        // !!!!!!!!!!!!!!!email!!!!!!!!!!!!!!!!!!
-        const VALIDATION_EMAIL = (email, msg) => {
-            const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!email) {
-                msg.textContent = "Required field";
-                msg.style.visibility = "visible";
-                flag = false;
-            } else if (!EMAIL_PATTERN.test(email)) {
-                msg.textContent = "Email not valid";
-                msg.style.visibility = "visible";
-                flag = false;
-            }
-            return email;
-        }
-
-        // !!!!!!!!!!!!!!!!!!Pass!!!!!!!!!!!!!!!
-        const VALIDATION_PASS = (pass, msg) => {
-            let passError = [];
-            if (!pass) {
-                msg.textContent = "Required field";
-                msg.style.visibility = "visible";
-                flag = false;
-                return "";
-            }
-
-            if (pass.length < 8 || pass.length > 16)
-                passError.push("Password must be 8-16 characters");
-
-            if (!/[A-Z]/.test(pass)) passError.push("One uppercase letter");
-
-            if (!/\d/.test(pass)) passError.push("One number");
-
-            if (passError.length > 0) {
-                msg.innerHTML = passError.join("<br>");
-                msg.style.visibility = "visible";
-                flag = false;
-            }
-            return pass;
-        }
-
-        // !!!!!!!!!!!!!!!1confirm pass!!!!!!!!!!!!!!!!!
-        const VALIDATION_CONFIRM_PASS = (Cpass, msg, pass) => {
-            if (!Cpass) {
-                msg.textContent = "Required field";
-                msg.style.visibility = "visible";
-                flag = false;
-            } else if (Cpass !== pass) {
-                msg.textContent = "Passwords do not match";
-                msg.style.visibility = "visible";
-                flag = false;
-            }
-            return Cpass;
-        }
-
-        // !!!!!!!!!!!!!!call Validation!!!!!!!!!!!!!!!1
-        VALIDATION_NAME(FULL_NAME, FULL_NAME_ERROR);
-        VALIDATION_EMAIL(REG_EMAIL, REG_EMAIL_ERROR);
-        VALIDATION_PASS(REG_PASS, REG_PASS_ERROR);
-        VALIDATION_CONFIRM_PASS(CONFIRM_PASS, CONFIRM_PASS_ERROR, REG_PASS);
-
-        // ?????????????????? store Data????????????/
-        if (!flag) return;
-        else {
-            let users = JSON.parse(localStorage.getItem("users")) || [];
-            const EXISTS = users.some(user => user.email === REG_EMAIL);
-            if (EXISTS) {
-                REG_EMAIL_ERROR.textContent = "Email already exists";
-                REG_EMAIL_ERROR.style.visibility = "visible";
-                return;
-            }
-
-            const NEW_USER = {
-                name: FULL_NAME,
-                email: REG_EMAIL,
-                password: REG_PASS
-            };
-
-            users.push(NEW_USER);
-            localStorage.setItem("users", JSON.stringify(users));
-            alert("Registered successfully");
-            e.target.reset();
-        }
+        pnlIndicator.className =
+            `pnl-indicator ${pnl.cls} w-75 m-auto p-2 rounded d-flex align-items-center justify-content-center`;
+        pnlIndicator.innerHTML = pnl.html;
     });
-}
+};
 
+// !delete cards
+window.deleteAsset = (id) => {
+    if (confirm('Are you sure you want to delete this asset?')) {
+        let assets = JSON.parse(localStorage.getItem('myAssets')) || [];
+        assets = assets.filter(asset => asset.id !== id);
+        localStorage.setItem('myAssets', JSON.stringify(assets));
 
-// TODO:::::::::::::: Login :::::::::::::::::::::::::::
-const LOG_FORM = document.getElementById("logForm");
-if (LOG_FORM) {
-    LOG_FORM.addEventListener("submit", (e) => {
-        e.preventDefault();
+        const element = document.getElementById(`asset-${id}`);
+        if (element) element.remove();
+    }
+};
 
-        // ???????? value?????????????
-        const LOG_EMAIL = document.getElementById("logEmail").value.trim();
-        const LOG_PASS = document.getElementById("logPass").value.trim();
+// TODO:::::::::::::::::::::::::: aside data-live handle ::::::::::::::::::::::::::::::::::::
 
-        // ?????????error????????????
-        const LOG_EMAIL_ERROR = document.getElementById("logEmail-error");
-        const LOG_PASS_ERROR = document.getElementById("logPass-error");
+const FETCH_AND_SAVE = async () => {
+    try {
+        const REQUEST = await fetch("https://api.gold-api.com/price/XAU");
+        const RESPONSE = await REQUEST.json();
 
-        // ??????????????reset error??????????/
-        LOG_EMAIL_ERROR.textContent = "";
-        LOG_EMAIL_ERROR.style.visibility = "hidden";
-        LOG_PASS_ERROR.textContent = "";
-        LOG_PASS_ERROR.style.visibility = "hidden";
+        SAVE(RESPONSE.price);
+        window.currentGoldPrice = RESPONSE.price;
+        DISPLAY();
+        UPDATE_PNL();
 
-        // TODO::::::::::::::::::::::validation:::::::::::::::::::::::::::::::::::
-        let isActive = true;
+    } catch (err) {
+        console.error("Fetch error: " + err.message);
+    }
+};
 
-        // !!!!!!!!!!!!!!!email!!!!!!!!!!!!!!!!!!
-        const CHECK_EMAIL = (email, msg) => {
-            const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const SAVE = (newPrice) => {
+    const currentPrice = localStorage.getItem("gold_price");
+    if (currentPrice) localStorage.setItem("gold_prev_price", currentPrice);
+    localStorage.setItem("gold_price", newPrice);
+    localStorage.setItem("gold_time", Date.now());
+};
 
-            if (!email) {
-                msg.textContent = "Required field";
-                msg.style.visibility = "visible";
-                isActive = false;
-                return;
-            }
+const _GET = () => {
+    const price = localStorage.getItem("gold_price");
+    if (!price) return null;
+    return {
+        price: parseFloat(price),
+        prevPrice: localStorage.getItem("gold_prev_price") !== null
+            ? parseFloat(localStorage.getItem("gold_prev_price"))
+            : parseFloat(price),
+        time: parseInt(localStorage.getItem("gold_time")) || 0,
+    };
+};
 
-            if (!EMAIL_PATTERN.test(email)) {
-                msg.textContent = "Email not valid";
-                msg.style.visibility = "visible";
-                isActive = false;
-            }
+const DISPLAY = () => {
+    const ASIDE = document.getElementById("aside");
+    if (!ASIDE) return;
 
-            return email;
-        };
+    const cached = _GET();
+    if (!cached) return;
 
-        // !!!!!!!!!!!!!!!!!!Pass!!!!!!!!!!!!!!!
-        const CHECK_PASS = (pass, msg) => {
-            if (!pass) {
-                msg.textContent = "Required field";
-                msg.style.visibility = "visible";
-                isActive = false;
-                return;
-            }
+    const curr = cached.price;
+    const prev = cached.prevPrice;
 
-            return pass;
-        };
+    const prices = GET_CURRENT_PRICES(curr);
+    const prevPrices = GET_CURRENT_PRICES(prev);
 
-        // !!!!!!!!!!!!!!call Validation!!!!!!!!!!!!!!!
-        CHECK_EMAIL(LOG_EMAIL, LOG_EMAIL_ERROR);
-        CHECK_PASS(LOG_PASS, LOG_PASS_ERROR);
+    const items = [
+        { name: "Ounce / oz", price: curr, prevPrice: prev },
+        { name: "English Lira", price: prices["EnglishLira"], prevPrice: prevPrices["EnglishLira"] },
+        { name: "Rashadi Lira", price: prices["RashadiLira"], prevPrice: prevPrices["RashadiLira"] },
+        { name: "24K / gram", price: prices["24K"], prevPrice: prevPrices["24K"] },
+        { name: "21K / gram", price: prices["21K"], prevPrice: prevPrices["21K"] },
+        { name: "18K / gram", price: prices["18K"], prevPrice: prevPrices["18K"] },
+    ];
 
-        if (!isActive) return;
+    ASIDE.innerHTML = items.map(item => {
+        const diff = GET_DIFF(item.price, item.prevPrice);
+        return `
+            <div class="border-bottom border-secondary d-flex justify-content-between align-items-center py-3 px-2">
+                <span class="fw-bold ms-3">${item.name}</span>
+                <div class="text-end me-3">
+                    <div class="price">${item.price.toFixed(2)}$</div>
+                    <small class="${diff.color}">${diff.arrow} ${diff.DIFF}%</small>
+                </div>
+            </div>`;
+    }).join("");
+};
 
-        // ?????????????? auth??????????????????
-        let users = JSON.parse(localStorage.getItem("users")) || [];
+const GET_DIFF = (current, previous) => {
+    if (!previous || previous === 0) return { DIFF: "0.00", color: "text-secondary", arrow: "▬" };
+    const DIFF = ((current - previous) / previous) * 100;
+    return {
+        DIFF: Math.abs(DIFF).toFixed(2),
+        color: DIFF > 0 ? "text-success" : DIFF < 0 ? "text-danger" : "text-secondary",
+        arrow: DIFF > 0 ? "▲" : DIFF < 0 ? "▼" : "▬",
+    };
+};
 
-        const FOUND_USER = users.find(user => user.email === LOG_EMAIL);
+const START = () => {
+    const cached = _GET();
+    if (cached) {
+        window.currentGoldPrice = cached.price;
+        DISPLAY();
+        UPDATE_PNL();
+    }
 
-        if (!FOUND_USER) {
-            LOG_EMAIL_ERROR.textContent = "Email not found";
-            LOG_EMAIL_ERROR.style.visibility = "visible";
-            return;
+    const checkAndFetch = () => {
+        const c = _GET();
+        const isStale = !c || (Date.now() - c.time > 6 * 60 * 1000);
+        if (isStale && document.visibilityState === 'visible') {
+            FETCH_AND_SAVE();
         }
+    };
 
-        if (FOUND_USER.password !== LOG_PASS) {
-            LOG_PASS_ERROR.textContent = "Incorrect password";
-            LOG_PASS_ERROR.style.visibility = "visible";
-            return;
-        }
+    checkAndFetch();
+    setInterval(checkAndFetch, 60000);
+};
 
-        sessionStorage.setItem("currentUser", JSON.stringify(FOUND_USER));
-        alert(`Welcome back, ${FOUND_USER.name}!`);
-        e.target.reset();
-    });
-}
+START();
 
 
-// TODO:::::::::::::: Asset Image :::::::::::::::::::::::::::
-const ASSET_IMG = document.getElementById("asset-img");
-if (ASSET_IMG) {
-    ASSET_IMG.addEventListener("change", function () {
-        const file = this.files[0];
-        const preview = document.getElementById("img-preview");
+// TODO:::::::::::::::::::::::::: Search & Filter ::::::::::::::::::::::::::::::::::::
 
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                preview.src = e.target.result;
-                preview.style.display = "block";
-            };
-            reader.readAsDataURL(file);
+const FILTER_ASSETS = () => {
+    const SEARCH_VAL = document.getElementById('search-input')?.value.toLowerCase().trim() || "";
+    const TYPE_SELECT_VAL = document.getElementById('types')?.value || "";
+    const KARAT_VAL = document.getElementById('karat')?.value || "";
+
+    const ALL_CARDS = document.querySelectorAll('#rowCard > [id^="asset-"]');
+    let visibleCount = 0;
+
+    ALL_CARDS.forEach(wrapper => {
+        const CARD = wrapper.querySelector('.asset-card');
+        if (!CARD) return;
+
+        const name = wrapper.querySelector('.fw-semibold')?.textContent.toLowerCase() || "";
+        const type = CARD.dataset.type || "";
+        const karat = CARD.dataset.karat || "";
+
+        const matchSearch = !SEARCH_VAL || name.includes(SEARCH_VAL);
+        const matchType = !TYPE_SELECT_VAL || TYPE_SELECT_VAL === "All Types" || type === TYPE_SELECT_VAL;
+        const matchKarat = !KARAT_VAL || KARAT_VAL === "All Karats" || karat === KARAT_VAL;
+
+        if (matchSearch && matchType && matchKarat) {
+            wrapper.style.display = "";
+            visibleCount++;
         } else {
-            preview.src = "";
-            preview.style.display = "none";
+            wrapper.style.display = "none";
         }
     });
-}
->>>>>>> Stashed changes
+
+
+    let emptyMsg = document.getElementById('no-results');
+    if (visibleCount === 0) {
+        if (!emptyMsg) {
+            emptyMsg = document.createElement('div');
+            emptyMsg.id = 'no-results';
+            emptyMsg.className = 'text-center text-secondary w-100 py-5';
+            emptyMsg.innerHTML = `<i class="fa-solid fa-box-open fs-1 mb-3 d-block"></i> No assets match your search.`;
+            document.getElementById('rowCard').appendChild(emptyMsg);
+        }
+        emptyMsg.style.display = "";
+    } else if (emptyMsg) {
+        emptyMsg.style.display = "none";
+    }
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+    const SEARCH_INPUT = document.getElementById('search-input');
+    const TYPE_SELECT = document.getElementById('types');
+    const KARAT_SELECT = document.getElementById('karat');
+
+    if (SEARCH_INPUT) SEARCH_INPUT.addEventListener('input', FILTER_ASSETS);
+    if (TYPE_SELECT) TYPE_SELECT.addEventListener('change', FILTER_ASSETS);
+    if (KARAT_SELECT) KARAT_SELECT.addEventListener('change', FILTER_ASSETS);
+});
+
+
+
+
+
+
+
+
+
+
+
+
+// // TODO:::::::::::::::::::::::::: assets card data handle ::::::::::::::::::::::::::::::::::::
+// document.addEventListener('DOMContentLoaded', () => {
+//     const ASSETS_FORM = document.getElementById('addAssetForm');
+//     const ASSETS_CARDS = document.getElementById('rowCard');
+//     const IMG_INPUT = document.getElementById('asset-img');
+//     const IMG_PREVIEW = document.getElementById('img-preview');
+
+
+//     const LOAD_ASSETS = () => {
+//         const ASSETS = JSON.parse(localStorage.getItem('myAssets')) || [];
+//         ASSETS.forEach(asset => DISPLAY_CARD(asset));
+//     };
+
+//     let currentBase64 = "";
+//     IMG_INPUT.addEventListener('change', () => {
+//         const FILE = IMG_INPUT.files[0]; if (FILE) {
+//             const RENDER = new FileReader();
+//             RENDER.onload = (e) => {
+//                 currentBase64 = e.target.result;
+//                 IMG_PREVIEW.src = currentBase64;
+//                 IMG_PREVIEW.style.display = 'block';
+//             };
+//             RENDER.readAsDataURL(FILE);
+//         }
+//     });
+
+//     ASSETS_FORM.addEventListener('submit', (e) => {
+//         e.preventDefault();
+
+//         const NEW_ASSETS = {
+//             id: Date.now(),
+//             name: document.getElementById('assetName').value,
+//             type: document.getElementById('assetType').value,
+//             karat: document.getElementById('assetKarat').value,
+//             date: document.getElementById('purchaseDate').value,
+//             price: document.getElementById('purchasePrice').value,
+//             image: currentBase64,
+//         };
+
+//         const ASSETS = JSON.parse(localStorage.getItem('myAssets')) || [];
+//         ASSETS.push(NEW_ASSETS);
+//         localStorage.setItem('myAssets', JSON.stringify(ASSETS));
+
+//         DISPLAY_CARD(NEW_ASSETS);
+//         ASSETS_FORM.reset();
+//         IMG_PREVIEW.src = "";
+
+//         const MODAL_EL = document.getElementById('addAssetModal');
+//         const MODAL = bootstrap.Modal.getInstance(MODAL_EL);
+//         MODAL.hide();
+//     });
+
+//     const DISPLAY_CARD = (asset) => {
+//         const currentPrice = window.currentGoldPrice;
+//         let pnlHTML = "Calculating...";
+//         let pnlClass = "";
+
+//         if (currentPrice) {
+//             const prices = {
+//                 "24K": currentPrice / 31.1035,
+//                 "21K": (currentPrice / 31.1035) * (21 / 24),
+//                 "18K": (currentPrice / 31.1035) * (18 / 24),
+//             };
+//             const currentVal = prices[asset.karat] || prices["24K"];
+//             const diff = currentVal - parseFloat(asset.price);
+//             const diffPercent = (diff / parseFloat(asset.price)) * 100;
+
+//             if (diff >= 0) {
+//                 pnlClass = "profit-bg";
+//                 pnlHTML = `+$${diff.toFixed(2)} (${diffPercent.toFixed(2)}%)`;
+//             } else {
+//                 pnlClass = "loss-bg";
+//                 pnlHTML = `-$${Math.abs(diff).toFixed(2)} (${diffPercent.toFixed(2)}%)`;
+//             }
+//         }
+
+//         const CARD = `
+//     <div class="col-12 col-md-6 col-lg-4 mb-4" id="asset-${asset.id}">
+//         <div class="asset-card text-center rounded-4 pb-3 position-relative" data-type="${asset.type}" data-karat="${asset.karat}" data-purchase-price="${asset.price}">
+//             <button onclick="deleteAsset(${asset.id})" class="btn btn-sm btn-outline-danger position-absolute end-0 top-0 m-2 border-0" style="z-index: 10;">
+//                 <i class="bi bi-trash"></i> ✕
+//             </button>
+//             <div class="img-placeholder mx-auto mb-3 d-flex align-items-center justify-content-center">
+//                 <img src="${asset.image}" class="img-fluid fit-object-cover" alt="Asset">
+//             </div>
+//             <p class="custom-text-white fw-semibold mb-0 fs-5">${asset.name}</p>
+//             <p class="text-gold small">${asset.type} | ${asset.karat} Fine Gold</p>
+//             <div class="pnl-box d-flex justify-content-around align-items-center px-2 py-3 w-75 m-auto rounded-3 mb-2">
+//                 <div class="pnl-item text-gold small">
+//                     <span class="d-block mb-2">Bought At</span>
+//                     <strong class="custom-text-white">${asset.date}</strong>
+//                 </div>
+//                 <div class="pnl-item text-gold small">
+//                     <span class="d-block mb-2">Price</span>
+//                     <strong class="custom-text-white">$${parseFloat(asset.price).toLocaleString()}</strong>
+//                 </div>
+//             </div>
+//             <div class="pnl-indicator ${pnlClass} w-75 m-auto p-2 rounded d-flex align-items-center justify-content-center" id="pnl-${asset.id}">
+//                 ${pnlHTML}
+//             </div>
+//         </div>
+//     </div>
+// `;
+//         ASSETS_CARDS.insertAdjacentHTML('beforeend', CARD);
+//         if (window.currentGoldPrice) UPDATE_PNL();
+//     };
+//     LOAD_ASSETS();
+
+// });
+
+// // !calculate loss/profit!!!!!!!!!!!!!!!
+
+// const UPDATE_PNL = () => {
+//     const currentPrice = window.currentGoldPrice;
+//     if (!currentPrice) return;
+
+//     const prices = {
+//         "24K": currentPrice / 31.1035,
+//         "22K": (currentPrice / 31.1035) * (22 / 24),
+//         "21K": (currentPrice / 31.1035) * (21 / 24),
+//         "18K": (currentPrice / 31.1035) * (18 / 24)
+//     };
+
+//     document.querySelectorAll('.asset-card').forEach(card => {
+//         const id = card.closest('[id^="asset-"]')?.id.replace('asset-', '');
+//         const pPrice = parseFloat(card.dataset.purchasePrice);
+//         const karat = card.dataset.karat;
+//         const pnlIndicator = document.getElementById(`pnl-${id}`);
+
+//         if (pnlIndicator) {
+//             const currentVal = prices[karat] || prices["24K"];
+//             const diff = currentVal - pPrice;
+//             const diffPercent = (diff / pPrice) * 100;
+
+//             if (diff >= 0) {
+//                 pnlIndicator.className = "pnl-indicator profit-bg w-75 m-auto p-2 rounded d-flex align-items-center justify-content-center";
+//                 pnlIndicator.innerHTML = `+$${diff.toFixed(2)} (${diffPercent.toFixed(2)}%)`;
+//             } else {
+//                 pnlIndicator.className = "pnl-indicator loss-bg w-75 m-auto p-2 rounded d-flex align-items-center justify-content-center";
+//                 pnlIndicator.innerHTML = `-$${Math.abs(diff).toFixed(2)} (${diffPercent.toFixed(2)}%)`;
+//             }
+//         }
+//     });
+// };
+// // !delete card!!!!!!!!!!!!!!!!
+// window.deleteAsset = (id) => {
+//     if (confirm('Are you sure you want to delete this asset?')) {
+//         let assets = JSON.parse(localStorage.getItem('myAssets')) || [];
+
+//         assets = assets.filter(asset => asset.id !== id);
+
+//         localStorage.setItem('myAssets', JSON.stringify(assets));
+
+//         const element = document.getElementById(`asset-${id}`);
+//         if (element) {
+//             element.remove();
+//         }
+//     }
+// };
+
+// // TODO:::::::::::::::::::::::::: aside data-live handle ::::::::::::::::::::::::::::::::::::
+// // localStorage.clear();
+
+// // ????????????????????fetch????????????????????????
+
+// const FETCH_AND_SAVE = async () => {
+//     try {
+//         const REQUEST = await fetch("https://api.gold-api.com/price/XAU");
+//         const RESPONSE = await REQUEST.json();
+
+//         SAVE(RESPONSE.price);
+//         window.currentGoldPrice = RESPONSE.price;
+//         DISPLAY();
+//         UPDATE_PNL();
+
+//     } catch (err) {
+//         alert("Fetch error: " + err.message);
+//     }
+// };
+
+// // ????????????????????save in local????????????????????????
+
+// const SAVE = (newPrice) => {
+//     const currentPrice = localStorage.getItem("gold_price");
+//     if (currentPrice) localStorage.setItem("gold_prev_price", currentPrice);
+
+//     localStorage.setItem("gold_price", newPrice);
+//     localStorage.setItem("gold_time", Date.now());
+// };
+
+// const _GET = () => {
+//     const price = localStorage.getItem("gold_price");
+//     if (!price) return null;
+//     return {
+//         price: parseFloat(price),
+//         prevPrice: localStorage.getItem("gold_prev_price") !== null
+//             ? parseFloat(localStorage.getItem("gold_prev_price"))
+//             : parseFloat(price),
+//         time: parseInt(localStorage.getItem("gold_time")) || 0,
+//     };
+// };
+
+// // ?????????????/display??????????????
+
+// const DISPLAY = () => {
+//     const cached = _GET();
+//     if (!cached) return;
+
+//     const curr = cached.price;
+//     const prev = cached.prevPrice;
+
+//     const ASIDE = document.getElementById("aside");
+
+//     //????calculation curr price/gram ??????????
+
+//     const GRAM24 = curr / 31.1035;
+//     const GRAM21 = GRAM24 * 0.875;
+//     const GRAM18 = GRAM24 * 0.75;
+//     const LIRA_ENGLISH = GRAM24 * 0.9167 * 8;
+//     const LIRA_RASHADI = GRAM24 * 0.9167 * 7.2;
+
+//     //????calculation prev price/gram ??????????
+
+//     const PREV_GRAM24 = prev / 31.1035;
+//     const PREV_GRAM21 = PREV_GRAM24 * 0.875;
+//     const PREV_GRAM18 = PREV_GRAM24 * 0.75;
+//     const PREV_LIRA_ENGLISH = PREV_GRAM24 * 0.9167 * 8;
+//     const PREV_LIRA_RASHADI = PREV_GRAM24 * 0.9167 * 7.2;
+
+//     const items = [
+//         { name: "Ounce / oz", price: curr, prevPrice: prev },
+//         { name: "English Lira", price: LIRA_ENGLISH, prevPrice: PREV_LIRA_ENGLISH },
+//         { name: "Rashadi Lira", price: LIRA_RASHADI, prevPrice: PREV_LIRA_RASHADI },
+//         { name: "24K", price: GRAM24, prevPrice: PREV_GRAM24 },
+//         { name: "21K", price: GRAM21, prevPrice: PREV_GRAM21 },
+//         { name: "18K", price: GRAM18, prevPrice: PREV_GRAM18 },
+//     ];
+
+//     ASIDE.innerHTML = items.map(item => {
+//         const diff = GET_DIFF(item.price, item.prevPrice);
+//         return `
+
+//             <div class="border-bottom border-secondary d-flex justify-content-between align-items-center py-3 px-2">
+//                 <span class="fw-bold ms-3">${item.name}</span>
+//                 <div class="text-end me-3">
+//                     <div class="price">${item.price.toFixed(2)}$</div>
+//                     <small class="${diff.color}">${diff.arrow} ${diff.DIFF}%</small>
+//                 </div>
+//             </div>
+//         `;
+//     }).join("");
+// };
+
+// // ??????????????????????diff???????????????????????????
+
+// const GET_DIFF = (current, previous) => {
+//     const DIFF = ((current - previous) / previous) * 100;
+//     return {
+//         DIFF: Math.abs(DIFF).toFixed(2),
+//         color: DIFF > 0 ? "text-success" : DIFF < 0 ? "text-danger" : "text-secondary",
+//         arrow: DIFF > 0 ? "▲" : DIFF < 0 ? "▼" : "▬",
+//     };
+// };
+
+// // ???????????????????satrat?????????????????
+
+// const START = () => {
+
+//     DISPLAY();
+//     const checkAndFetch = () => {
+//         const cached = _GET();
+//         const isStale = !cached || (Date.now() - cached.time > 6 * 60 * 1000);
+
+//         if (isStale && document.visibilityState === 'visible') {
+//             FETCH_AND_SAVE();
+//         }
+//     };
+
+//     checkAndFetch();
+//     setInterval(checkAndFetch, 60000);
+// }
+
+// START();

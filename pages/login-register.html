@@ -7,7 +7,8 @@
     <meta name="title" content="Login | Gold Track 24K - Secure Vault Access">
     <meta name="description"
         content="Access your 24K gold portfolio. Secure login to Gold Track to manage your assets, monitor real-time prices, and secure your digital vault.">
-    <title>24K Authentication</title>
+    <link rel="shortcut icon" href="../assets/img/logo.png" type="image/x-icon">
+    <title>24K | Authentication</title>
     <!-- !font awesome cdn -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
         integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
@@ -21,6 +22,13 @@
 </head>
 
 <body>
+
+
+    <!-- !start preloader -->
+    <div class="preloader position-fixed vh-100 w-100 d-flex justify-content-center align-items-center" id="preloader">
+        <img src="../assets/img/logo.webp" alt="24k logo" class="img-fluid loader-logo">
+    </div>
+    <!-- !end preloader -->
 
     <div class="container-fluid d-flex align-items-center justify-content-center min-vh-100" id="authBox">
 
@@ -43,23 +51,23 @@
                     <div class="mb-3">
                         <div class="input-group-custom position-relative mb-3">
                             <i class="fas fa-envelope"></i>
-                            <input type="email" id="logEmail" class="form-control py-3 px-5 rounded-5" placeholder="Email Address"
-                                required>
-                                <p class="small text-danger" id="logEmail-error"></p>
+                            <input type="email" id="logEmail" class="form-control py-3 px-5 rounded-5"
+                                placeholder="Email Address" required>
+                            <p class="small text-danger" id="logEmail-error"></p>
                         </div>
                     </div>
                     <div class="mb-4">
                         <div class="input-group-custom position-relative mb-3">
                             <i class="fas fa-lock"></i>
-                            <input type="password" id="logPass" class="form-control py-3 px-5 rounded-5" placeholder="Password"
-                                required>
-                                <p class="small text-danger" id="logPass-error"></p>
+                            <input type="password" id="logPass" class="form-control py-3 px-5 rounded-5"
+                                placeholder="Password" required>
+                            <p class="small text-danger" id="logPass-error"></p>
                         </div>
                     </div>
                     <button class="btn btn-gold w-100 py-3 fw-bold text-dark rounded-5">LOGIN</button>
                 </form>
 
-                <div class="switch-text mt-auto text-center pt-4">
+                <div class="switch-text mt-auto text-center">
                     <span class="text-secondary">New to 24K Gold?</span>
                     <span class="switch-link text-gold ms-1 fw-bold" onclick="FLIP_CARD()">Create Account</span>
                 </div>
@@ -80,7 +88,9 @@
                             <i class="fas fa-user"></i>
                             <input type="text" id="fullName" class="form-control py-3 px-5 rounded-5"
                                 placeholder="Full Name" required>
-                            <div><p class="small text-danger ms-3 mt-2" id="fullName-error"></p></div>
+                            <div>
+                                <p class="small text-danger ms-3 mt-2" id="fullName-error"></p>
+                            </div>
                         </div>
                     </div>
                     <div class="mb-3">
@@ -88,7 +98,9 @@
                             <i class="fas fa-envelope"></i>
                             <input type="email" id="regEmail" class="form-control py-3 px-5 rounded-5"
                                 placeholder="Email Address" required>
-                            <div><p class="small text-danger ms-3 mt-2" id="regEmail-error"></p></div>
+                            <div>
+                                <p class="small text-danger ms-3 mt-2" id="regEmail-error"></p>
+                            </div>
                         </div>
                     </div>
                     <div class="mb-3">
@@ -96,7 +108,9 @@
                             <i class="fas fa-lock"></i>
                             <input type="password" id="regPass" class="form-control py-3 px-5 rounded-5"
                                 placeholder="Create Password" required>
-                            <div><p class="small text-danger ms-3 mt-2" id="regPass-error"></p></div>
+                            <div>
+                                <p class="small text-danger ms-3 mt-2" id="regPass-error"></p>
+                            </div>
                         </div>
                     </div>
                     <div class="mb-4">
@@ -104,7 +118,9 @@
                             <i class="fas fa-shield-alt"></i>
                             <input type="password" id="confirmPass" class="form-control py-3 px-5 rounded-5"
                                 placeholder="Confirm Password" required>
-                            <div><p class="small text-danger ms-3 mt-2" id="confirmPass-error"></p></div>
+                            <div>
+                                <p class="small text-danger ms-3 mt-2" id="confirmPass-error"></p>
+                            </div>
                         </div>
                     </div>
                     <button class="btn btn-gold w-100 py-3 fw-bold text-dark rounded-5">REGISTER NOW</button>
@@ -119,7 +135,24 @@
         </div>
     </div>
 
+    <!-- !start footer -->
+    <footer class="mt-3 py-2 text-center">
+        <div class="container-fluid">
+            <p class="pt-3 pb-1">&copy;2026 <a href="https://www.linkedin.com/in/leen-saleh/" target="_blank"
+                    class="text-gold">Leen</a> ,
+                <a href="https://www.linkedin.com/in/lujain-majid/" target="_blank" class="text-gold">Lujain</a> & <a
+                    href="https://www.linkedin.com/in/zaidalkhalili/" target="_blank" class="text-gold">Zaid</a>. All
+                rights reserved.
+                Unauthorized use or duplication is prohibited.
+            </p>
+        </div>
+    </footer>
+    <!-- !end footer -->
+
+    <!-- !custom js -->
+    <!-- !public js -->
     <script src="../assets/js/main.js"></script>
+    <!-- !autho js -->
     <script src="../assets/js/autho.js"></script>
 </body>
 

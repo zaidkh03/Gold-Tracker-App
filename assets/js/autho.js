@@ -212,3 +212,34 @@ document.getElementById("logForm").addEventListener("submit", (e) => {
     e.target.reset();
     window.location.href = "assets.html";
 });
+
+
+// TODO:::::::::::::::::::::::::reset password:::::::::::::::::::::
+document.getElementById("forgotPass").addEventListener("click", () => {
+
+    const EMAIL = prompt("Enter your email:");
+
+    if (!EMAIL) return;
+
+    let users = JSON.parse(localStorage.getItem("users")) || [];
+
+    const USER_INDEX = users.findIndex(user => user.email === EMAIL);
+
+    if (USER_INDEX === -1) {
+        alert("Email not found!");
+        return;
+    }
+
+    const NEW_PASS = prompt("Enter new password:");
+
+    if (!NEW_PASS) {
+        alert("Password cannot be empty");
+        return;
+    }
+
+    users[USER_INDEX].password = NEW_PASS;
+
+    localStorage.setItem("users", JSON.stringify(users));
+
+    alert("Password updated successfully");
+});

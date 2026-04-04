@@ -4,9 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description"
-        content="Track live gold prices, market trends, and news in real-time. Your premium gold market dashboard.">
-    <meta name="keywords" content="gold price, XAU, gold tracker, gold market, live gold price, gold investment">
+    <meta name="description" content="Track live gold prices, market trends, and news in real-time. Your premium gold market dashboard.">
     <link rel="shortcut icon" href="assets/img/logo.webp" type="image/x-icon">
     <title>24K | Home</title>
 
@@ -16,517 +14,23 @@
         crossorigin="anonymous" referrerpolicy="no-referrer" />
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css">
-    <!-- Inter font (matches assets page) -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
-        rel="stylesheet">
-
-    <style>
-        /* ===== ROOT & THEME ===== */
-        :root {
-            --bg-dark: #0a0a0a;
-            --bg-card: #141414;
-            --gold-primary: #d4af37;
-            --text-white: #ffffff;
-            --text-gray: #a0a0a0;
-            --border-color: #222;
-            --nav-bg: rgba(20, 20, 20, 0.95);
-            --chart-grid: #222;
-            --profit: #2ecc71;
-            --loss: #e74c3c;
-        }
-
-        [data-theme="light"] {
-            --bg-dark: #f5f5f5;
-            --bg-card: #ffffff;
-            --gold-primary: #c9a227;
-            --text-white: #1a1a1a;
-            --text-gray: #666;
-            --border-color: #aaa5a5;
-            --nav-bg: rgba(255, 255, 255, 0.95);
-            --chart-grid: #e5e5e5;
-        }
-
-        /* ===== BASE ===== */
-        *,
-        *::before,
-        *::after {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: "Inter", sans-serif;
-            background-color: var(--bg-dark);
-            color: var(--text-white);
-            overflow-x: hidden;
-            min-height: 100vh;
-        }
-
-        a {
-            text-decoration: none;
-            color: inherit;
-        }
-
-        /* ===== PRELOADER ===== */
-        .preloader {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: var(--bg-dark);
-            z-index: 9999;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            transition: opacity 0.5s ease, visibility 0.5s ease;
-        }
-
-        .loader-logo {
-            max-width: 150px;
-            animation: pulse 1.5s infinite ease-in-out;
-        }
-
-        @keyframes pulse {
-            0% {
-                transform: scale(0.9);
-                opacity: 0.7;
-            }
-
-            50% {
-                transform: scale(1);
-                opacity: 1;
-            }
-
-            100% {
-                transform: scale(0.9);
-                opacity: 0.7;
-            }
-        }
-
-        .preloader-hidden {
-            opacity: 0 !important;
-            visibility: hidden !important;
-        }
-
-        /* ===== NAVBAR ===== */
-        nav.navbar {
-            background-color: var(--bg-card);
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        nav.navbar .navbar-brand {
-            word-spacing: .6rem;
-            letter-spacing: .3rem;
-            color: var(--gold-primary);
-            font-weight: 700;
-            transition: .3s;
-        }
-
-        nav.navbar .navbar-brand:hover {
-            color: var(--gold-primary);
-            filter: brightness(1.2);
-        }
-
-        .navbar-nav .nav-link {
-            color: var(--text-white) !important;
-            font-size: 0.9rem;
-            font-weight: 500;
-            position: relative;
-            transition: color 0.3s;
-        }
-
-        .navbar-collapse .navbar-nav:first-child .nav-link::after {
-            content: '';
-            position: absolute;
-            bottom: -.7rem;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background-color: var(--gold-primary);
-            transition: 1.25s;
-        }
-
-        .navbar-collapse .navbar-nav:first-child .nav-link:hover::after,
-        .navbar-collapse .navbar-nav:first-child .nav-link.active::after {
-            width: 100%;
-        }
-
-        .logBtn {
-            background-color: var(--gold-primary);
-            color: #000 !important;
-            font-weight: 600;
-            border-radius: 0.375rem;
-            padding: 0.4rem 1.1rem;
-            transition: .5s;
-        }
-
-        .logBtn:hover {
-            transform: scale(1.02);
-            filter: brightness(1.1);
-        }
-
-        #theme-toggle i {
-            color: var(--text-white);
-        }
-
-        /* ===== LAYOUT ===== */
-        .page-wrapper {
-            display: grid;
-            grid-template-columns: 280px 1fr;
-            grid-template-rows: auto;
-            gap: 0;
-            min-height: calc(100vh - 60px);
-        }
-
-        /* ===== ASIDE / NEWS ===== */
-        .news-aside {
-            background-color: var(--bg-card);
-            border-right: 1px solid var(--border-color);
-            padding: 1.5rem 1rem;
-            min-height: calc(100vh - 60px);
-        }
-
-        .section-label {
-            font-size: 0.7rem;
-            letter-spacing: 2px;
-            color: var(--gold-primary);
-            font-weight: 700;
-            text-transform: uppercase;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: .5rem;
-        }
-
-        .news-item {
-            border-bottom: 1px solid var(--border-color);
-            padding: 0.85rem 0.5rem;
-            cursor: pointer;
-            transition: .3s;
-            border-radius: 8px;
-        }
-
-        .news-item:hover {
-            background: rgba(212, 175, 55, 0.05);
-            padding-left: 1rem;
-        }
-
-        .news-item-title {
-            font-size: 0.82rem;
-            font-weight: 600;
-            color: var(--text-white);
-            margin-bottom: 0.3rem;
-            line-height: 1.4;
-        }
-
-        .news-item-meta {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .news-source {
-            font-size: 0.7rem;
-            color: var(--text-gray);
-        }
-
-        .news-time {
-            font-size: 0.65rem;
-            color: var(--text-gray);
-        }
-
-        .news-badge {
-            display: inline-block;
-            font-size: 0.6rem;
-            padding: 1px 6px;
-            border-radius: 20px;
-            font-weight: 700;
-            letter-spacing: 1px;
-        }
-
-        .badge-live {
-            background: rgba(231, 76, 60, 0.15);
-            color: #e74c3c;
-            border: 1px solid rgba(231, 76, 60, 0.4);
-            animation: blink 1.2s infinite;
-        }
-
-        @keyframes blink {
-
-            0%,
-            100% {
-                opacity: 1;
-            }
-
-            50% {
-                opacity: 0.4;
-            }
-        }
-
-        .badge-new {
-            background: rgba(212, 175, 55, 0.15);
-            color: var(--gold-primary);
-            border: 1px solid rgba(212, 175, 55, 0.4);
-        }
-
-        .news-loading {
-            text-align: center;
-            color: var(--text-gray);
-            font-size: 0.8rem;
-            padding: 2rem 0;
-        }
-
-        /* ===== MAIN CONTENT ===== */
-        .main-content {
-            padding: 1.5rem;
-            display: flex;
-            flex-direction: column;
-            gap: 1.25rem;
-            overflow-y: auto;
-        }
-
-        /* ===== HERO PRICE BANNER ===== */
-        .hero-banner {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 1.5rem 2rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-
-        .hero-banner .hero-label {
-            font-size: 0.7rem;
-            letter-spacing: 2px;
-            color: var(--gold-primary);
-            font-weight: 700;
-            text-transform: uppercase;
-            margin-bottom: 0.3rem;
-        }
-
-        .hero-price {
-            font-size: 2.6rem;
-            font-weight: 800;
-            color: var(--text-white);
-            line-height: 1;
-        }
-
-        .hero-price span {
-            color: var(--gold-primary);
-            font-size: 1.2rem;
-            vertical-align: super;
-        }
-
-        .hero-change {
-            font-size: 0.85rem;
-            font-weight: 600;
-            margin-top: 0.4rem;
-        }
-
-        .hero-change.up {
-            color: var(--profit);
-        }
-
-        .hero-change.down {
-            color: var(--loss);
-        }
-
-        .hero-stats {
-            display: flex;
-            gap: 2rem;
-            flex-wrap: wrap;
-        }
-
-        .hero-stat {
-            text-align: center;
-        }
-
-        .hero-stat-label {
-            font-size: 0.7rem;
-            color: var(--text-gray);
-            margin-bottom: 0.2rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .hero-stat-value {
-            font-size: 1rem;
-            font-weight: 700;
-            color: var(--text-white);
-        }
-
-        /* ===== CHART CARD ===== */
-        .chart-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 1.5rem;
-        }
-
-        .chart-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 1rem;
-            flex-wrap: wrap;
-            gap: .5rem;
-        }
-
-        .chart-canvas-wrapper {
-            height: 260px;
-        }
-
-        /* ===== RATES GRID ===== */
-        .rates-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 1rem;
-        }
-
-        .rate-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 14px;
-            padding: 1.1rem 1rem;
-            transition: .4s;
-            cursor: default;
-        }
-
-        .rate-card:hover {
-            border-color: var(--gold-primary);
-            transform: translateY(-4px);
-            background: rgba(212, 175, 55, 0.04);
-        }
-
-        .rate-card-label {
-            font-size: 0.7rem;
-            color: var(--text-gray);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: .4rem;
-        }
-
-        .rate-card-value {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: var(--text-white);
-            margin-bottom: .2rem;
-        }
-
-        .rate-card-currency {
-            font-size: 0.7rem;
-            color: var(--gold-primary);
-            margin-left: 3px;
-        }
-
-        .trend-up {
-            color: var(--profit);
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-
-        .trend-down {
-            color: var(--loss);
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-
-        .trend-flat {
-            color: var(--text-gray);
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-
-        /* ===== FOOTER ===== */
-        footer {
-            background-color: var(--bg-dark);
-            border-top: 1px solid var(--border-color);
-            font-size: .8rem;
-            color: var(--text-gray);
-            text-align: center;
-            padding: 0.75rem;
-        }
-
-        footer a {
-            color: var(--gold-primary);
-            transition: .3s;
-        }
-
-        footer a:hover {
-            filter: brightness(1.2);
-        }
-
-        /* ===== LAST UPDATED BADGE ===== */
-        .last-updated {
-            font-size: 0.68rem;
-            color: var(--text-gray);
-            display: flex;
-            align-items: center;
-            gap: .3rem;
-        }
-
-        .live-dot {
-            width: 7px;
-            height: 7px;
-            border-radius: 50%;
-            background: var(--profit);
-            display: inline-block;
-            animation: blink 1.2s infinite;
-        }
-
-        /* ===== RESPONSIVE ===== */
-        @media (max-width: 991.98px) {
-            .page-wrapper {
-                grid-template-columns: 1fr;
-            }
-
-            .news-aside {
-                min-height: auto;
-                border-right: none;
-                border-bottom: 1px solid var(--border-color);
-            }
-        }
-
-        @media (max-width: 575.98px) {
-            .hero-price {
-                font-size: 2rem;
-            }
-
-            .hero-stats {
-                gap: 1rem;
-            }
-
-            .main-content {
-                padding: 1rem;
-            }
-
-            .hero-banner {
-                padding: 1rem;
-            }
-        }
-    </style>
+    <!-- Shared styles -->
+    <link rel="stylesheet" href="assets/css/style.css">
+    <!-- Homepage-specific styles -->
+    <link rel="stylesheet" href="assets/css/home.css">
 </head>
 
 <body>
 
-    <!-- ===== PRELOADER ===== -->
+    <!-- Preloader -->
     <div class="preloader" id="preloader">
         <img src="assets/img/logo.webp" alt="24K logo" class="loader-logo">
     </div>
 
-    <!-- ===== NAVBAR (matches assets page) ===== -->
+    <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark py-3">
         <div class="container-fluid d-flex align-items-center">
-
-            <a class="navbar-brand text-gold fw-bold d-lg-none me-auto" href="index.html">24K GOLD</a>
+            <a class="navbar-brand fw-bold d-lg-none me-auto" href="index.html">24K GOLD</a>
 
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
                 <span class="navbar-toggler-icon"></span>
@@ -538,27 +42,29 @@
                     <li class="nav-item me-2"><a class="nav-link page" href="pages/assets.html">My Assets</a></li>
                 </ul>
 
-                <a class="navbar-brand mx-auto text-gold fw-bold d-none d-lg-block" href="index.html">24K GOLD</a>
+                <a class="navbar-brand mx-auto fw-bold d-none d-lg-block" href="index.html">24K GOLD</a>
 
-                <ul class="navbar-nav ms-auto d-flex flex-row align-items-center me-lg-4">
+                <ul class="navbar-nav ms-auto d-flex flex-row align-items-center gap-2 me-lg-4">
+                    <li class="nav-item">
+                        <button class="currency-toggle-btn" id="currency-toggle">Switch to JOD</button>
+                    </li>
                     <li class="nav-item px-2">
                         <a class="nav-link" href="#" id="theme-toggle">
                             <i class="fa-solid fa-circle-half-stroke fs-5"></i>
                         </a>
                     </li>
-                    <li class="nav-item px-2">
-                        <a class="logBtn fw-semibold text-dark btn" href="pages/login-register.html" id="authBtn">Log
-                            in</a>
+                    <li class="nav-item">
+                        <a class="logBtn btn" href="pages/login-register.html" id="authBtn">Log in</a>
                     </li>
                 </ul>
             </div>
         </div>
     </nav>
 
-    <!-- ===== PAGE WRAPPER ===== -->
+    <!-- Page wrapper -->
     <div class="page-wrapper">
 
-        <!-- ===== NEWS ASIDE ===== -->
+        <!-- News aside -->
         <aside class="news-aside">
             <p class="section-label"><i class="fa-solid fa-globe"></i> Market News</p>
             <div id="news-container">
@@ -569,15 +75,16 @@
             </div>
         </aside>
 
-        <!-- ===== MAIN CONTENT ===== -->
+        <!-- Main content -->
         <main class="main-content">
 
-            <!-- Hero Price Banner -->
+            <!-- Hero price banner -->
             <div class="hero-banner">
                 <div>
                     <p class="hero-label"><i class="fa-solid fa-coins me-1"></i> XAU / USD Live Price</p>
-                    <p class="hero-price" id="hero-price">
-                        <span>$</span><span id="hero-price-val">—</span>
+                    <p class="hero-price">
+                        <span id="hero-price-val">—</span>
+                        <span class="hero-currency" id="hero-currency">USD</span>
                     </p>
                     <p class="hero-change" id="hero-change">Loading...</p>
                 </div>
@@ -592,7 +99,7 @@
                     </div>
                     <div class="hero-stat">
                         <p class="hero-stat-label">Last Updated</p>
-                        <p class="hero-stat-value" style="font-size:0.8rem;" id="stat-time">—</p>
+                        <p class="hero-stat-value" id="stat-time">—</p>
                     </div>
                 </div>
             </div>
@@ -600,11 +107,12 @@
             <!-- Chart -->
             <div class="chart-card">
                 <div class="chart-header">
-                    <p class="section-label mb-0"><i class="fa-solid fa-chart-line"></i> XAU / USD Market Trend (Today)
+                    <p class="section-label mb-0">
+                        <i class="fa-solid fa-chart-line"></i> XAU / USD Market Trend (Today)
                     </p>
                     <div class="last-updated">
                         <span class="live-dot"></span>
-                        <span id="chart-updated">Live</span>
+                        <span>Live</span>
                     </div>
                 </div>
                 <div class="chart-canvas-wrapper">
@@ -612,9 +120,8 @@
                 </div>
             </div>
 
-            <!-- Rates Grid -->
-            <div class="rates-grid" id="rates-grid">
-                <!-- Populated by JS -->
+            <!-- Rate cards -->
+            <div class="rates-grid">
                 <div class="rate-card">
                     <p class="rate-card-label">24K / gram</p>
                     <p class="rate-card-value" id="rate-24k">—<span class="rate-card-currency">USD</span></p>
@@ -650,340 +157,22 @@
         </main>
     </div>
 
-    <!-- ===== FOOTER ===== -->
+    <!-- Footer -->
     <footer>
         <p class="pt-2 pb-1">&copy;2026
             <a href="https://www.linkedin.com/in/leen-saleh/" target="_blank">Leen</a>,
             <a href="https://www.linkedin.com/in/lujain-majid/" target="_blank">Lujain</a> &
             <a href="https://www.linkedin.com/in/zaidalkhalili/" target="_blank">Zaid</a>.
-            All rights reserved. Unauthorized use or duplication is prohibited.
+            All rights reserved.
         </p>
     </footer>
 
-    <!-- Bootstrap JS -->
+    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-    <script>
-        // ===== PRELOADER =====
-        window.addEventListener("load", () => {
-            const PRELOADER = document.getElementById("preloader");
-            setTimeout(() => PRELOADER.classList.add("preloader-hidden"), 1000);
-        });
-
-        // ===== ACTIVE NAV LINK =====
-        const LINKS = document.querySelectorAll(".page");
-        const CURR_PAGE = window.location.pathname.split("/").pop() || "index.html";
-        LINKS.forEach(link => {
-            const linkPage = link.getAttribute("href").split("/").pop();
-            if (linkPage === CURR_PAGE) link.classList.add("active");
-        });
-
-        // ===== THEME TOGGLE (synced with assets page via localStorage) =====
-        const THEME_TOGGLE = document.getElementById("theme-toggle");
-        const HTML_EL = document.documentElement;
-
-        const savedTheme = localStorage.getItem("theme");
-        if (savedTheme) HTML_EL.setAttribute("data-theme", savedTheme);
-
-        THEME_TOGGLE.addEventListener("click", (e) => {
-            e.preventDefault();
-            const newTheme = HTML_EL.getAttribute("data-theme") === "light" ? "dark" : "light";
-            HTML_EL.setAttribute("data-theme", newTheme);
-            localStorage.setItem("theme", newTheme);
-            if (goldChart) updateChartTheme();
-        });
-
-        // ===== GOLD PRICE HELPERS (same logic as assets page) =====
-        const GET_CURRENT_PRICES = (goldPricePerOz) => {
-            const gram24 = goldPricePerOz / 31.1035;
-            return {
-                "Ounce": goldPricePerOz,
-                "24K": gram24,
-                "22K": gram24 * (22 / 24),
-                "21K": gram24 * (21 / 24),
-                "18K": gram24 * (18 / 24),
-                "EnglishLira": gram24 * 0.9167 * 8,
-                "RashadiLira": gram24 * 0.9167 * 7.2,
-            };
-        };
-
-        const GET_DIFF = (current, previous) => {
-            if (!previous || previous === 0) return { diff: 0, pct: "0.00", color: "trend-flat", arrow: "▬" };
-            const diff = current - previous;
-            const pct = ((diff / previous) * 100).toFixed(2);
-            return {
-                diff: diff.toFixed(2),
-                pct,
-                color: diff > 0 ? "trend-up" : diff < 0 ? "trend-down" : "trend-flat",
-                arrow: diff > 0 ? "▲" : diff < 0 ? "▼" : "▬",
-            };
-        };
-
-        // ===== LOCAL STORAGE (same keys as assets page) =====
-        const SAVE_PRICE = (newPrice) => {
-            const current = localStorage.getItem("gold_price");
-            if (current) localStorage.setItem("gold_prev_price", current);
-            localStorage.setItem("gold_price", newPrice);
-            localStorage.setItem("gold_time", Date.now());
-        };
-
-        const GET_CACHED = () => {
-            const price = localStorage.getItem("gold_price");
-            if (!price) return null;
-            return {
-                price: parseFloat(price),
-                prevPrice: localStorage.getItem("gold_prev_price")
-                    ? parseFloat(localStorage.getItem("gold_prev_price"))
-                    : parseFloat(price),
-                time: parseInt(localStorage.getItem("gold_time")) || 0,
-            };
-        };
-
-        // ===== CHART =====
-        let goldChart;
-        let chartLabels = [];
-        let chartData = [];
-
-        const initChart = () => {
-            const isLight = HTML_EL.getAttribute("data-theme") === "light";
-            const gridColor = isLight ? "#eeeeee" : "#222";
-            const textColor = isLight ? "#555" : "#666";
-            const ctx = document.getElementById("goldChart").getContext("2d");
-
-            goldChart = new Chart(ctx, {
-                type: "line",
-                data: {
-                    labels: chartLabels,
-                    datasets: [{
-                        data: chartData,
-                        borderColor: "#d4af37",
-                        borderWidth: 2.5,
-                        fill: true,
-                        backgroundColor: "rgba(212, 175, 55, 0.08)",
-                        tension: 0.4,
-                        pointRadius: 0,
-                        pointHoverRadius: 5,
-                        pointHoverBackgroundColor: "#d4af37",
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    interaction: { intersect: false, mode: "index" },
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            backgroundColor: "rgba(20,20,20,0.95)",
-                            borderColor: "#d4af37",
-                            borderWidth: 1,
-                            titleColor: "#d4af37",
-                            bodyColor: "#fff",
-                            callbacks: {
-                                label: ctx => ` $${ctx.parsed.y.toFixed(2)}`
-                            }
-                        }
-                    },
-                    scales: {
-                        y: {
-                            grid: { color: gridColor },
-                            ticks: { color: textColor, callback: v => `$${v.toFixed(0)}` }
-                        },
-                        x: { grid: { display: false }, ticks: { color: textColor } }
-                    }
-                }
-            });
-        };
-
-        const updateChartTheme = () => {
-            const isLight = HTML_EL.getAttribute("data-theme") === "light";
-            goldChart.options.scales.y.grid.color = isLight ? "#eeeeee" : "#222";
-            goldChart.options.scales.y.ticks.color = isLight ? "#555" : "#666";
-            goldChart.options.scales.x.ticks.color = isLight ? "#555" : "#666";
-            goldChart.update();
-        };
-
-        const addChartPoint = (price) => {
-            const now = new Date();
-            const label = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-
-            // Keep max 20 points
-            if (chartLabels.length >= 20) {
-                chartLabels.shift();
-                chartData.shift();
-            }
-
-            chartLabels.push(label);
-            chartData.push(price);
-
-            if (goldChart) {
-                goldChart.data.labels = chartLabels;
-                goldChart.data.datasets[0].data = chartData;
-                goldChart.update("none");
-            }
-        };
-
-        // ===== UPDATE UI =====
-        const UPDATE_UI = (curr, prev) => {
-            const prices = GET_CURRENT_PRICES(curr);
-            const prevPrices = GET_CURRENT_PRICES(prev);
-
-            // Hero banner
-            document.getElementById("hero-price-val").textContent = curr.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-
-            const heroChange = GET_DIFF(curr, prev);
-            const heroEl = document.getElementById("hero-change");
-            heroEl.textContent = `${heroChange.arrow} $${Math.abs(heroChange.diff)} (${Math.abs(heroChange.pct)}%) from last fetch`;
-            heroEl.className = `hero-change ${heroChange.diff >= 0 ? "up" : "down"}`;
-
-            document.getElementById("stat-english").textContent = `$${prices["EnglishLira"].toFixed(2)}`;
-            document.getElementById("stat-rashadi").textContent = `$${prices["RashadiLira"].toFixed(2)}`;
-
-            const t = new Date();
-            document.getElementById("stat-time").textContent = t.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-
-            // Rate cards
-            const renderRate = (id, trendId, val, prevVal) => {
-                const el = document.getElementById(id);
-                const d = GET_DIFF(val, prevVal);
-                el.innerHTML = `${val.toFixed(2)}<span class="rate-card-currency">USD</span>`;
-                const tEl = document.getElementById(trendId);
-                tEl.textContent = `${d.arrow} ${Math.abs(d.pct)}%`;
-                tEl.className = d.color;
-            };
-
-            renderRate("rate-24k", "trend-24k", prices["24K"], prevPrices["24K"]);
-            renderRate("rate-21k", "trend-21k", prices["21K"], prevPrices["21K"]);
-            renderRate("rate-18k", "trend-18k", prices["18K"], prevPrices["18K"]);
-            renderRate("rate-22k", "trend-22k", prices["22K"], prevPrices["22K"]);
-            renderRate("rate-english", "trend-english", prices["EnglishLira"], prevPrices["EnglishLira"]);
-            renderRate("rate-rashadi", "trend-rashadi", prices["RashadiLira"], prevPrices["RashadiLira"]);
-
-            // Chart
-            addChartPoint(curr);
-        };
-
-        // ===== FETCH GOLD PRICE =====
-        const FETCH_GOLD = async () => {
-            try {
-                const res = await fetch("https://api.gold-api.com/price/XAU");
-                const data = await res.json();
-                const price = data.price;
-
-                const cached = GET_CACHED();
-                SAVE_PRICE(price);
-                const newCached = GET_CACHED();
-                UPDATE_UI(newCached.price, newCached.prevPrice);
-
-            } catch (err) {
-                console.error("Gold fetch error:", err.message);
-                // Fallback to cached
-                const cached = GET_CACHED();
-                if (cached) UPDATE_UI(cached.price, cached.prevPrice);
-            }
-        };
-
-        // ===== FETCH NEWS =====
-        const GNEWS_KEY = "38871b063c70928836fc12f8b2ab101c"; // Replace with your key from https://gnews.io
-
-        const FALLBACK_NEWS = [
-            { title: "Gold prices surge amid global economic uncertainty", source: "Reuters", publishedAt: new Date(Date.now() - 1800000).toISOString() },
-            { title: "Central banks increase gold reserves to record highs", source: "Bloomberg", publishedAt: new Date(Date.now() - 7200000).toISOString() },
-            { title: "XAU/USD holds strong above key support level", source: "FX Street", publishedAt: new Date(Date.now() - 10800000).toISOString() },
-            { title: "Fed rate decision expected to impact gold demand", source: "CNBC", publishedAt: new Date(Date.now() - 18000000).toISOString() },
-            { title: "Inflation concerns drive investors toward safe haven assets", source: "MarketWatch", publishedAt: new Date(Date.now() - 25200000).toISOString() },
-        ];
-
-        const formatTimeAgo = (isoDate) => {
-            const diffMs = Date.now() - new Date(isoDate).getTime();
-            const diffMin = Math.floor(diffMs / 60000);
-            const diffH = Math.floor(diffMin / 60);
-            if (diffMin < 2) return "LIVE";
-            if (diffMin < 60) return `${diffMin}m ago`;
-            if (diffH < 24) return `${diffH}h ago`;
-            return `${Math.floor(diffH / 24)}d ago`;
-        };
-
-        const RENDER_NEWS = (articles) => {
-            const container = document.getElementById("news-container");
-            container.innerHTML = "";
-
-            articles.forEach((article, i) => {
-                const timeAgo = formatTimeAgo(article.publishedAt);
-                const isLive = timeAgo === "LIVE";
-                const isNew = i === 0;
-
-                const item = document.createElement("div");
-                item.className = "news-item";
-                item.innerHTML = `
-                    <p class="news-item-title">${article.title}</p>
-                    <div class="news-item-meta">
-                        <span class="news-source">${article.source?.name || article.source || "News"}</span>
-                        <span class="${isLive ? "news-badge badge-live" : isNew ? "news-badge badge-new" : "news-time"}">${timeAgo}</span>
-                    </div>
-                `;
-                if (article.url) {
-                    item.addEventListener("click", () => window.open(article.url, "_blank"));
-                }
-                container.appendChild(item);
-            });
-        };
-
-        const FETCH_NEWS = async () => {
-            try {
-                const res = await fetch(
-                    `https://gnews.io/api/v4/search?q=gold+price+XAU&lang=en&max=8&apikey=${GNEWS_KEY}`
-                );
-                const data = await res.json();
-
-                if (data.articles && data.articles.length > 0) {
-                    const articles = data.articles.map(item => ({
-                        title: item.title,
-                        url: item.url,
-                        source: item.source,
-                        publishedAt: item.publishedAt,
-                    }));
-                    RENDER_NEWS(articles);
-                } else {
-                    console.warn("GNews returned no articles:", data);
-                    RENDER_NEWS(FALLBACK_NEWS);
-                }
-            } catch (err) {
-                console.error("News fetch error:", err.message);
-                RENDER_NEWS(FALLBACK_NEWS);
-            }
-        };
-
-        // ===== INIT =====
-        const INIT = () => {
-            // Load cached immediately for instant render
-            const cached = GET_CACHED();
-            if (cached) {
-                UPDATE_UI(cached.price, cached.prevPrice);
-            }
-
-            // Then fetch fresh
-            const isStale = !cached || (Date.now() - cached.time > 6 * 60 * 1000);
-            if (isStale) {
-                FETCH_GOLD();
-            }
-
-            // Refresh every 60s
-            setInterval(() => {
-                const c = GET_CACHED();
-                const stale = !c || (Date.now() - c.time > 6 * 60 * 1000);
-                if (stale && document.visibilityState === "visible") FETCH_GOLD();
-            }, 60000);
-
-            FETCH_NEWS();
-        };
-
-        // Init chart first, then data
-        initChart();
-        INIT();
-    </script>
-
+    <script src="assets/js/auth.js"></script>
+    <script src="assets/js/gold.js"></script>
+    <script src="assets/js/utils.js"></script>
+    <script src="assets/js/home.js"></script>
 </body>
-
 </html>

@@ -1,246 +1,112 @@
-// ???????????flip card??????????????/
-const FLIP_CARD = () => {
-    const card = document.getElementById('card');
-    card.classList.toggle('flipped');
+// ============================================================
+// autho.js — Login/Register page UI logic (uses Auth module)
+// ============================================================
 
-    if (card.classList.contains('flipped')) {
-        card.style.minHeight = "48rem";
-    } else {
-        card.style.minHeight = "37.5rem";
-    }
+// ── Flip card ────────────────────────────────────────────────
+const FLIP_CARD = () => {
+    const card = document.getElementById("card");
+    card.classList.toggle("flipped");
+    card.style.minHeight = card.classList.contains("flipped") ? "48rem" : "37.5rem";
 };
-// TODO:::::::::::::::::::::::::::::::::::: Regster:::::::::::::::::::::::::::::::::::::::::
+
+// ── Validation helpers ───────────────────────────────────────
+const validateName = (name, errEl) => {
+    errEl.textContent = "";
+    if (!name) { errEl.textContent = "Required field"; return false; }
+    const errs = [];
+    if (!/^[A-Za-z\s]+$/.test(name)) errs.push("Only letters allowed");
+    if (name.length < 4) errs.push("Must be at least 4 characters");
+    if (errs.length) { errEl.innerHTML = errs.join("<br>"); return false; }
+    return true;
+};
+
+const validateEmail = (email, errEl) => {
+    errEl.textContent = "";
+    if (!email) { errEl.textContent = "Required field"; return false; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { errEl.textContent = "Email not valid"; return false; }
+    return true;
+};
+
+const validatePass = (pass, errEl) => {
+    errEl.textContent = "";
+    if (!pass) { errEl.textContent = "Required field"; return false; }
+    const errs = [];
+    if (pass.length < 8 || pass.length > 16) errs.push("Password must be 8–16 characters");
+    if (!/[A-Z]/.test(pass)) errs.push("At least one uppercase letter");
+    if (!/\d/.test(pass)) errs.push("At least one number");
+    if (errs.length) { errEl.innerHTML = errs.join("<br>"); return false; }
+    return true;
+};
+
+const validateConfirm = (confirm, pass, errEl) => {
+    errEl.textContent = "";
+    if (!confirm) { errEl.textContent = "Required field"; return false; }
+    if (confirm !== pass) { errEl.textContent = "Passwords do not match"; return false; }
+    return true;
+};
+
+// ── Register ─────────────────────────────────────────────────
 document.getElementById("registerForm").addEventListener("submit", (e) => {
     e.preventDefault();
-    // ????????values?????????????
-    const FULL_NAME = document.getElementById("fullName").value.trim();
-    const REG_EMAIL = document.getElementById("regEmail").value.trim();
-    const REG_PASS = document.getElementById("regPass").value.trim();
-    const CONFIRM_PASS = document.getElementById("confirmPass").value.trim();
 
-    // ???????error????????????
-    const FULL_NAME_ERROR = document.getElementById("fullName-error");
-    const REG_EMAIL_ERROR = document.getElementById("regEmail-error");
-    const REG_PASS_ERROR = document.getElementById("regPass-error");
-    const CONFIRM_PASS_ERROR = document.getElementById("confirmPass-error");
+    const name    = document.getElementById("fullName").value.trim();
+    const email   = document.getElementById("regEmail").value.trim();
+    const pass    = document.getElementById("regPass").value.trim();
+    const confirm = document.getElementById("confirmPass").value.trim();
 
-    // ??????????reset error???????
-    FULL_NAME_ERROR.textContent = "";
-    REG_EMAIL_ERROR.textContent = "";
-    REG_PASS_ERROR.textContent = "";
-    CONFIRM_PASS_ERROR.textContent = "";
+    const nameErr    = document.getElementById("fullName-error");
+    const emailErr   = document.getElementById("regEmail-error");
+    const passErr    = document.getElementById("regPass-error");
+    const confirmErr = document.getElementById("confirmPass-error");
 
-    // ?????????????validation?????????????????????
-    let flag = true;
-    // !!!!!!!!!!!!!name!!!!!!!!!!!!!!
-    const VALIDATION_NAME = (name, msg) => {
-        let nameError = [];
-        if (!name) {
-            msg.textContent = "Required field";
-            flag = false;
-            return "";
-        }
+    const ok = [
+        validateName(name, nameErr),
+        validateEmail(email, emailErr),
+        validatePass(pass, passErr),
+        validateConfirm(confirm, pass, confirmErr),
+    ].every(Boolean);
 
-        if (!/^[A-Za-z\s]+$/.test(name)) {
-            nameError.push("Only letters allowed");
-            flag = false;
-        }
+    if (!ok) return;
 
-        if (name.length < 4) {
-            nameError.push("Must be at least 4 character");
-            flag = false;
-        }
+    const result = Auth.register(name, email, pass);
+    if (!result.ok) { emailErr.textContent = result.msg; return; }
 
-        if (nameError.length > 0) {
-            msg.innerHTML = nameError.join("<br>");
-            flag = false;
-        }
-        return name;
-    }
+    alert("Registered successfully! Please log in.");
+    e.target.reset();
+    FLIP_CARD();
+});
 
-    // !!!!!!!!!!!!!!!email!!!!!!!!!!!!!!!!!!
-    const VALIDATION_EMAIL = (email, msg) => {
-        const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!email) {
-            msg.textContent = "Required field";
-            flag = false;
-        } else if (!EMAIL_PATTERN.test(email)) {
-            msg.textContent = "Email not valid";
-            flag = false;
-        }
-        return email;
-    }
-
-    // !!!!!!!!!!!!!!!!!!Pass!!!!!!!!!!!!!!!
-    const VALIDATION_PASS = (pass, msg) => {
-        let passError = [];
-        if (!pass) {
-            msg.textContent = "Required field";
-            flag = false;
-            return "";
-        }
-
-        if (pass.length < 8 || pass.length > 16)
-            passError.push("Password must be 8-16 characters");
-
-        if (!/[A-Z]/.test(pass)) passError.push("One uppercase letter");
-
-        if (!/\d/.test(pass)) passError.push("One number");
-
-        if (passError.length > 0) {
-            msg.innerHTML = passError.join("<br>");
-            flag = false;
-        }
-        return pass;
-    }
-
-    // !!!!!!!!!!!!!!!1confirm pass!!!!!!!!!!!!!!!!!
-    const VALIDATION_CONFIRM_PASS = (Cpass, msg, pass) => {
-        if (!Cpass) {
-            msg.textContent = "Required field";
-            flag = false;
-        } else if (Cpass !== pass) {
-            msg.textContent = "Passwords do not match";
-            flag = false;
-        }
-        return Cpass;
-    }
-    // !!!!!!!!!!!!!!call Validation!!!!!!!!!!!!!!!1
-    VALIDATION_NAME(FULL_NAME, FULL_NAME_ERROR);
-    VALIDATION_EMAIL(REG_EMAIL, REG_EMAIL_ERROR);
-    VALIDATION_PASS(REG_PASS, REG_PASS_ERROR);
-    VALIDATION_CONFIRM_PASS(CONFIRM_PASS, CONFIRM_PASS_ERROR, REG_PASS);
-
-
-    // ?????????????????? store Data????????????/
-    if (!flag) return;
-    else {
-        let users = JSON.parse(localStorage.getItem("users")) || [];
-        const EXISTS = users.some(user => user.email === REG_EMAIL);
-        if (EXISTS) {
-            REG_EMAIL_ERROR.textContent = "Email already exists";
-            return;
-        }
-
-        const NEW_USER = {
-            name: FULL_NAME,
-            email: REG_EMAIL,
-            password: REG_PASS
-        };
-
-        users.push(NEW_USER);
-        localStorage.setItem("users", JSON.stringify(users));
-        alert("Registered successfully");
-        e.target.reset();
-    }
-})
-
-
-// TODO:::::::::::::: Login ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+// ── Login ────────────────────────────────────────────────────
 document.getElementById("logForm").addEventListener("submit", (e) => {
     e.preventDefault();
 
-    // ???????? value?????????????
-    const LOG_EMAIL = document.getElementById("logEmail").value.trim();
-    const LOG_PASS = document.getElementById("logPass").value.trim();
+    const email = document.getElementById("logEmail").value.trim();
+    const pass  = document.getElementById("logPass").value.trim();
+    const emailErr = document.getElementById("logEmail-error");
+    const passErr  = document.getElementById("logPass-error");
+    emailErr.textContent = "";
+    passErr.textContent = "";
 
-    // ?????????error????????????
-    const LOG_EMAIL_ERROR = document.getElementById("logEmail-error");
-    const LOG_PASS_ERROR = document.getElementById("logPass-error");
+    if (!validateEmail(email, emailErr)) return;
+    if (!pass) { passErr.textContent = "Required field"; return; }
 
-    // ??????????????reset error??????????/
-    LOG_EMAIL_ERROR.textContent = "";
-    LOG_PASS_ERROR.textContent = "";
-
-
-    let isActive = true;
-
-    // !!!!!!!!!!!!!!!email!!!!!!!!!!!!!!!!!!
-    const CHECK_EMAIL = (email, msg) => {
-        const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-        if (!email) {
-            msg.textContent = "Required field";
-            isActive = false;
-            return;
-        }
-
-        if (!EMAIL_PATTERN.test(email)) {
-            msg.textContent = "Email not valid";
-            isActive = false;
-        }
-
-        return email;
-    };
-
-    // !!!!!!!!!!!!!!!!!!Pass!!!!!!!!!!!!!!!
-    const CHECK_PASS = (pass, msg) => {
-        if (!pass) {
-            msg.textContent = "Required field";
-            isActive = false;
-            return;
-        }
-
-        return pass;
-    };
-
-    // !!!!!!!!!!!!!!call Validation!!!!!!!!!!!!!!!
-    CHECK_EMAIL(LOG_EMAIL, LOG_EMAIL_ERROR);
-    CHECK_PASS(LOG_PASS, LOG_PASS_ERROR);
-
-    if (!isActive) return;
-
-    // ?????????????? auth??????????????????
-    let users = JSON.parse(localStorage.getItem("users")) || [];
-
-    const FOUND_USER = users.find(user => user.email === LOG_EMAIL);
-
-    if (!FOUND_USER) {
-        LOG_EMAIL_ERROR.textContent = "Email not found";
+    const result = Auth.login(email, pass);
+    if (!result.ok) {
+        if (result.field === "email") emailErr.textContent = result.msg;
+        else passErr.textContent = result.msg;
         return;
     }
 
-    if (FOUND_USER.password !== LOG_PASS) {
-        LOG_PASS_ERROR.textContent = "Incorrect password";
-        return;
-    }
-
-    sessionStorage.setItem("currentUser", JSON.stringify(FOUND_USER));
-    localStorage.setItem("currentUser", FOUND_USER.email);
-
-    alert(`Welcome back, ${FOUND_USER.name}!`);
-
+    alert(`Welcome back, ${result.user.name}!`);
     e.target.reset();
     window.location.href = "assets.html";
 });
 
-
-// TODO:::::::::::::::::::::::::reset password:::::::::::::::::::::
-document.getElementById("forgotPass").addEventListener("click", () => {
-
-    const EMAIL = prompt("Enter your email:");
-
-    if (!EMAIL) return;
-
-    let users = JSON.parse(localStorage.getItem("users")) || [];
-
-    const USER_INDEX = users.findIndex(user => user.email === EMAIL);
-
-    if (USER_INDEX === -1) {
-        alert("Email not found!");
-        return;
-    }
-
-    const NEW_PASS = prompt("Enter new password:");
-
-    if (!NEW_PASS) {
-        alert("Password cannot be empty");
-        return;
-    }
-
-    users[USER_INDEX].password = NEW_PASS;
-
-    localStorage.setItem("users", JSON.stringify(users));
-
-    alert("Password updated successfully");
+// ── Forgot password ──────────────────────────────────────────
+document.getElementById("forgotPass").addEventListener("click", (e) => {
+    e.preventDefault();
+    const email = prompt("Enter your registered email:");
+    if (!email) return;
+    const result = Auth.resetPassword(email);
+    alert(result.ok ? "Password updated successfully." : result.msg);
 });

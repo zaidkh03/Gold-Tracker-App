@@ -206,6 +206,7 @@ document.getElementById("logForm").addEventListener("submit", (e) => {
     }
 
     sessionStorage.setItem("currentUser", JSON.stringify(FOUND_USER));
+    localStorage.setItem("currentUser", FOUND_USER.email);
 
     alert(`Welcome back, ${FOUND_USER.name}!`);
 

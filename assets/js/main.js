@@ -6,7 +6,6 @@ window.addEventListener("load", () => {
         PRELOADER.classList.add("preloader-hidden");
     }, 1000)
 })
-
 // TODO:::::::::::::::::::::::::::::::Active page:::::::::::::::::::::::::::::::::::::::::::::::
 
 const LINKS = document.querySelectorAll(".page");
@@ -76,7 +75,6 @@ document.addEventListener('DOMContentLoaded', () => {
             karat: document.getElementById('assetKarat').value,
             date: document.getElementById('purchaseDate').value,
             price: document.getElementById('purchasePrice').value,
-            gram: document.getElementById('gram').value,
             image: currentBase64,
         };
 
@@ -91,8 +89,8 @@ document.addEventListener('DOMContentLoaded', () => {
         IMG_PREVIEW.style.display = 'none';
 
         const MODAL_EL = document.getElementById('addAssetModal');
-        const MODAL = bootstrap.Modal.getOrCreateInstance(MODAL_EL);
-        MODAL.hide();
+        const MODAL = bootstrap.Modal.getInstance(MODAL_EL);
+        if (MODAL) MODAL.hide();
     });
 
     LOAD_ASSETS();
@@ -100,9 +98,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 const GET_CURRENT_PRICES = (goldPricePerOz) => {
     const gram24 = goldPricePerOz / 31.1035;
-
     return {
-        "Ounce": goldPricePerOz, // ✅ مهم
+        "Ounce": goldPricePerOz,        
+        "Bar": goldPricePerOz,         
         "24K": gram24,
         "22K": gram24 * (22 / 24),
         "21K": gram24 * (21 / 24),
@@ -113,9 +111,10 @@ const GET_CURRENT_PRICES = (goldPricePerOz) => {
 };
 
 const GET_ASSET_PRICE_KEY = (type, karat) => {
+    if (type === "Ounce") return "Ounce";
+    if (type === "Bar") return "Bar";
     if (type === "EnglishLira") return "EnglishLira";
     if (type === "RashadiLira") return "RashadiLira";
-    if (type === "Bar") return "Ounce"; // ✅ الحل
     return karat;
 };
 
@@ -146,63 +145,48 @@ const DISPLAY_CARD = (asset) => {
 
     if (currentPrice) {
         const prices = GET_CURRENT_PRICES(currentPrice);
-
         const key = GET_ASSET_PRICE_KEY(asset.type, asset.karat);
-        const unitPrice = prices[key] ?? prices["24K"];
-
-        let currentVal;
-
-        if (asset.type === "Bar" || asset.type === "EnglishLira" || asset.type === "RashadiLira") {
-            currentVal = unitPrice;
-        } else {
-            currentVal = unitPrice * (asset.gram || 1);
-        }
-
-        const pnl = BUILD_PNL(currentVal, asset.price);
+        const pnl = BUILD_PNL(prices[key] ?? prices["24K"], asset.price);
         pnlHTML = pnl.html;
         pnlClass = pnl.cls;
     }
 
     const CARD = `
-<div class="col-12 col-md-6 col-lg-4 mb-4" id="asset-${asset.id}">
-    <div class="asset-card text-center rounded-4 pb-3 position-relative h-100"
-         data-type="${asset.type}"
-         data-karat="${asset.karat}"
-         data-purchase-price="${asset.price}"
-         data-gram="${asset.gram}">
-         
-        <button onclick="deleteAsset(${asset.id})"
-            class="btn btn-sm btn-outline-danger position-absolute end-0 top-0 m-2 border-0">
-            ✕
-        </button>
-
-        <div class="img-placeholder mx-auto mb-3 d-flex align-items-center justify-content-center">
-            <img src="${asset.image}" class="img-fluid fit-object-cover" alt="Asset">
-        </div>
-
-        <p class="custom-text-white fw-semibold mb-0 fs-5">${asset.name}</p>
-        <p class="text-gold small">${asset.type} | ${asset.karat} Fine Gold</p>
-
-        <div class="pnl-box d-flex justify-content-around align-items-center px-2 py-3 w-75 m-auto rounded-3 mb-2">
-            <div class="pnl-item text-gold small">
-                <span class="d-block mb-2">Bought At</span>
-                <strong class="custom-text-white">${asset.date}</strong>
+    <div class="col-12 col-md-6 col-lg-4 mb-4" id="asset-${asset.id}">
+        <div class="asset-card text-center rounded-4 pb-3 position-relative"
+             data-type="${asset.type}"
+             data-karat="${asset.karat}"
+             data-purchase-price="${asset.price}">
+            <button onclick="deleteAsset(${asset.id})"
+                    class="btn btn-sm btn-outline-danger position-absolute end-0 top-0 m-2 border-0"
+                    style="z-index: 10;">
+                <i class="bi bi-trash"></i> ✕
+            </button>
+            <div class="img-placeholder mx-auto mb-3 d-flex align-items-center justify-content-center">
+                <img src="${asset.image}" class="img-fluid fit-object-cover" alt="Asset">
             </div>
-            <div class="pnl-item text-gold small">
-                <span class="d-block mb-2">Bought Price</span>
-                <strong class="custom-text-white">$${parseFloat(asset.price).toLocaleString()}</strong>
+            <p class="custom-text-white fw-semibold mb-0 fs-5">${asset.name}</p>
+            <p class="text-gold small">${asset.type} | ${asset.karat} Fine Gold</p>
+            <div class="pnl-box d-flex justify-content-around align-items-center px-2 py-3 w-75 m-auto rounded-3 mb-2">
+                <div class="pnl-item text-gold small">
+                    <span class="d-block mb-2">Bought At</span>
+                    <strong class="custom-text-white">${asset.date}</strong>
+                </div>
+                <div class="pnl-item text-gold small">
+                    <span class="d-block mb-2">Price</span>
+                    <strong class="custom-text-white">$${parseFloat(asset.price).toLocaleString()}</strong>
+                </div>
+            </div>
+            <div class="pnl-indicator ${pnlClass} w-75 m-auto p-2 rounded d-flex align-items-center justify-content-center"
+                 id="pnl-${asset.id}">
+                ${pnlHTML}
             </div>
         </div>
-
-        <div class="pnl-indicator ${pnlClass} w-75 m-auto p-2 rounded d-flex align-items-center justify-content-center"
-             id="pnl-${asset.id}">
-            ${pnlHTML}
-        </div>
-    </div>
-</div>`;
+    </div>`;
 
     ASSETS_CARDS.insertAdjacentHTML('beforeend', CARD);
 };
+
 const UPDATE_PNL = () => {
     const currentPrice = window.currentGoldPrice;
     if (!currentPrice) return;
@@ -219,18 +203,10 @@ const UPDATE_PNL = () => {
         const type = card.dataset.type;
         const pnlIndicator = document.getElementById(`pnl-${id}`);
 
+        if (!pnlIndicator || isNaN(pPrice)) return;
+
         const key = GET_ASSET_PRICE_KEY(type, karat);
-        const unitPrice = prices[key] ?? prices["24K"];
-
-        let currentVal;
-
-        if (type === "Bar" || type === "EnglishLira" || type === "RashadiLira") {
-            currentVal = unitPrice;
-        } else {
-            const gram = parseFloat(card.dataset.gram) || 1;
-            currentVal = unitPrice * gram;
-        }
-
+        const currentVal = prices[key] ?? prices["24K"];
         const pnl = BUILD_PNL(currentVal, pPrice);
 
         pnlIndicator.className =
@@ -417,291 +393,3 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-
-
-
-
-
-// // TODO:::::::::::::::::::::::::: assets card data handle ::::::::::::::::::::::::::::::::::::
-// document.addEventListener('DOMContentLoaded', () => {
-//     const ASSETS_FORM = document.getElementById('addAssetForm');
-//     const ASSETS_CARDS = document.getElementById('rowCard');
-//     const IMG_INPUT = document.getElementById('asset-img');
-//     const IMG_PREVIEW = document.getElementById('img-preview');
-
-
-//     const LOAD_ASSETS = () => {
-//         const ASSETS = JSON.parse(localStorage.getItem('myAssets')) || [];
-//         ASSETS.forEach(asset => DISPLAY_CARD(asset));
-//     };
-
-//     let currentBase64 = "";
-//     IMG_INPUT.addEventListener('change', () => {
-//         const FILE = IMG_INPUT.files[0]; if (FILE) {
-//             const RENDER = new FileReader();
-//             RENDER.onload = (e) => {
-//                 currentBase64 = e.target.result;
-//                 IMG_PREVIEW.src = currentBase64;
-//                 IMG_PREVIEW.style.display = 'block';
-//             };
-//             RENDER.readAsDataURL(FILE);
-//         }
-//     });
-
-//     ASSETS_FORM.addEventListener('submit', (e) => {
-//         e.preventDefault();
-
-//         const NEW_ASSETS = {
-//             id: Date.now(),
-//             name: document.getElementById('assetName').value,
-//             type: document.getElementById('assetType').value,
-//             karat: document.getElementById('assetKarat').value,
-//             date: document.getElementById('purchaseDate').value,
-//             price: document.getElementById('purchasePrice').value,
-//             image: currentBase64,
-//         };
-
-//         const ASSETS = JSON.parse(localStorage.getItem('myAssets')) || [];
-//         ASSETS.push(NEW_ASSETS);
-//         localStorage.setItem('myAssets', JSON.stringify(ASSETS));
-
-//         DISPLAY_CARD(NEW_ASSETS);
-//         ASSETS_FORM.reset();
-//         IMG_PREVIEW.src = "";
-
-//         const MODAL_EL = document.getElementById('addAssetModal');
-//         const MODAL = bootstrap.Modal.getInstance(MODAL_EL);
-//         MODAL.hide();
-//     });
-
-//     const DISPLAY_CARD = (asset) => {
-//         const currentPrice = window.currentGoldPrice;
-//         let pnlHTML = "Calculating...";
-//         let pnlClass = "";
-
-//         if (currentPrice) {
-//             const prices = {
-//                 "24K": currentPrice / 31.1035,
-//                 "21K": (currentPrice / 31.1035) * (21 / 24),
-//                 "18K": (currentPrice / 31.1035) * (18 / 24),
-//             };
-//             const currentVal = prices[asset.karat] || prices["24K"];
-//             const diff = currentVal - parseFloat(asset.price);
-//             const diffPercent = (diff / parseFloat(asset.price)) * 100;
-
-//             if (diff >= 0) {
-//                 pnlClass = "profit-bg";
-//                 pnlHTML = `+$${diff.toFixed(2)} (${diffPercent.toFixed(2)}%)`;
-//             } else {
-//                 pnlClass = "loss-bg";
-//                 pnlHTML = `-$${Math.abs(diff).toFixed(2)} (${diffPercent.toFixed(2)}%)`;
-//             }
-//         }
-
-//         const CARD = `
-//     <div class="col-12 col-md-6 col-lg-4 mb-4" id="asset-${asset.id}">
-//         <div class="asset-card text-center rounded-4 pb-3 position-relative" data-type="${asset.type}" data-karat="${asset.karat}" data-purchase-price="${asset.price}">
-//             <button onclick="deleteAsset(${asset.id})" class="btn btn-sm btn-outline-danger position-absolute end-0 top-0 m-2 border-0" style="z-index: 10;">
-//                 <i class="bi bi-trash"></i> ✕
-//             </button>
-//             <div class="img-placeholder mx-auto mb-3 d-flex align-items-center justify-content-center">
-//                 <img src="${asset.image}" class="img-fluid fit-object-cover" alt="Asset">
-//             </div>
-//             <p class="custom-text-white fw-semibold mb-0 fs-5">${asset.name}</p>
-//             <p class="text-gold small">${asset.type} | ${asset.karat} Fine Gold</p>
-//             <div class="pnl-box d-flex justify-content-around align-items-center px-2 py-3 w-75 m-auto rounded-3 mb-2">
-//                 <div class="pnl-item text-gold small">
-//                     <span class="d-block mb-2">Bought At</span>
-//                     <strong class="custom-text-white">${asset.date}</strong>
-//                 </div>
-//                 <div class="pnl-item text-gold small">
-//                     <span class="d-block mb-2">Price</span>
-//                     <strong class="custom-text-white">$${parseFloat(asset.price).toLocaleString()}</strong>
-//                 </div>
-//             </div>
-//             <div class="pnl-indicator ${pnlClass} w-75 m-auto p-2 rounded d-flex align-items-center justify-content-center" id="pnl-${asset.id}">
-//                 ${pnlHTML}
-//             </div>
-//         </div>
-//     </div>
-// `;
-//         ASSETS_CARDS.insertAdjacentHTML('beforeend', CARD);
-//         if (window.currentGoldPrice) UPDATE_PNL();
-//     };
-//     LOAD_ASSETS();
-
-// });
-
-// // !calculate loss/profit!!!!!!!!!!!!!!!
-
-// const UPDATE_PNL = () => {
-//     const currentPrice = window.currentGoldPrice;
-//     if (!currentPrice) return;
-
-//     const prices = {
-//         "24K": currentPrice / 31.1035,
-//         "22K": (currentPrice / 31.1035) * (22 / 24),
-//         "21K": (currentPrice / 31.1035) * (21 / 24),
-//         "18K": (currentPrice / 31.1035) * (18 / 24)
-//     };
-
-//     document.querySelectorAll('.asset-card').forEach(card => {
-//         const id = card.closest('[id^="asset-"]')?.id.replace('asset-', '');
-//         const pPrice = parseFloat(card.dataset.purchasePrice);
-//         const karat = card.dataset.karat;
-//         const pnlIndicator = document.getElementById(`pnl-${id}`);
-
-//         if (pnlIndicator) {
-//             const currentVal = prices[karat] || prices["24K"];
-//             const diff = currentVal - pPrice;
-//             const diffPercent = (diff / pPrice) * 100;
-
-//             if (diff >= 0) {
-//                 pnlIndicator.className = "pnl-indicator profit-bg w-75 m-auto p-2 rounded d-flex align-items-center justify-content-center";
-//                 pnlIndicator.innerHTML = `+$${diff.toFixed(2)} (${diffPercent.toFixed(2)}%)`;
-//             } else {
-//                 pnlIndicator.className = "pnl-indicator loss-bg w-75 m-auto p-2 rounded d-flex align-items-center justify-content-center";
-//                 pnlIndicator.innerHTML = `-$${Math.abs(diff).toFixed(2)} (${diffPercent.toFixed(2)}%)`;
-//             }
-//         }
-//     });
-// };
-// // !delete card!!!!!!!!!!!!!!!!
-// window.deleteAsset = (id) => {
-//     if (confirm('Are you sure you want to delete this asset?')) {
-//         let assets = JSON.parse(localStorage.getItem('myAssets')) || [];
-
-//         assets = assets.filter(asset => asset.id !== id);
-
-//         localStorage.setItem('myAssets', JSON.stringify(assets));
-
-//         const element = document.getElementById(`asset-${id}`);
-//         if (element) {
-//             element.remove();
-//         }
-//     }
-// };
-
-// // TODO:::::::::::::::::::::::::: aside data-live handle ::::::::::::::::::::::::::::::::::::
-// // localStorage.clear();
-
-// // ????????????????????fetch????????????????????????
-
-// const FETCH_AND_SAVE = async () => {
-//     try {
-//         const REQUEST = await fetch("https://api.gold-api.com/price/XAU");
-//         const RESPONSE = await REQUEST.json();
-
-//         SAVE(RESPONSE.price);
-//         window.currentGoldPrice = RESPONSE.price;
-//         DISPLAY();
-//         UPDATE_PNL();
-
-//     } catch (err) {
-//         alert("Fetch error: " + err.message);
-//     }
-// };
-
-// // ????????????????????save in local????????????????????????
-
-// const SAVE = (newPrice) => {
-//     const currentPrice = localStorage.getItem("gold_price");
-//     if (currentPrice) localStorage.setItem("gold_prev_price", currentPrice);
-
-//     localStorage.setItem("gold_price", newPrice);
-//     localStorage.setItem("gold_time", Date.now());
-// };
-
-// const _GET = () => {
-//     const price = localStorage.getItem("gold_price");
-//     if (!price) return null;
-//     return {
-//         price: parseFloat(price),
-//         prevPrice: localStorage.getItem("gold_prev_price") !== null
-//             ? parseFloat(localStorage.getItem("gold_prev_price"))
-//             : parseFloat(price),
-//         time: parseInt(localStorage.getItem("gold_time")) || 0,
-//     };
-// };
-
-// // ?????????????/display??????????????
-
-// const DISPLAY = () => {
-//     const cached = _GET();
-//     if (!cached) return;
-
-//     const curr = cached.price;
-//     const prev = cached.prevPrice;
-
-//     const ASIDE = document.getElementById("aside");
-
-//     //????calculation curr price/gram ??????????
-
-//     const GRAM24 = curr / 31.1035;
-//     const GRAM21 = GRAM24 * 0.875;
-//     const GRAM18 = GRAM24 * 0.75;
-//     const LIRA_ENGLISH = GRAM24 * 0.9167 * 8;
-//     const LIRA_RASHADI = GRAM24 * 0.9167 * 7.2;
-
-//     //????calculation prev price/gram ??????????
-
-//     const PREV_GRAM24 = prev / 31.1035;
-//     const PREV_GRAM21 = PREV_GRAM24 * 0.875;
-//     const PREV_GRAM18 = PREV_GRAM24 * 0.75;
-//     const PREV_LIRA_ENGLISH = PREV_GRAM24 * 0.9167 * 8;
-//     const PREV_LIRA_RASHADI = PREV_GRAM24 * 0.9167 * 7.2;
-
-//     const items = [
-//         { name: "Ounce / oz", price: curr, prevPrice: prev },
-//         { name: "English Lira", price: LIRA_ENGLISH, prevPrice: PREV_LIRA_ENGLISH },
-//         { name: "Rashadi Lira", price: LIRA_RASHADI, prevPrice: PREV_LIRA_RASHADI },
-//         { name: "24K", price: GRAM24, prevPrice: PREV_GRAM24 },
-//         { name: "21K", price: GRAM21, prevPrice: PREV_GRAM21 },
-//         { name: "18K", price: GRAM18, prevPrice: PREV_GRAM18 },
-//     ];
-
-//     ASIDE.innerHTML = items.map(item => {
-//         const diff = GET_DIFF(item.price, item.prevPrice);
-//         return `
-
-//             <div class="border-bottom border-secondary d-flex justify-content-between align-items-center py-3 px-2">
-//                 <span class="fw-bold ms-3">${item.name}</span>
-//                 <div class="text-end me-3">
-//                     <div class="price">${item.price.toFixed(2)}$</div>
-//                     <small class="${diff.color}">${diff.arrow} ${diff.DIFF}%</small>
-//                 </div>
-//             </div>
-//         `;
-//     }).join("");
-// };
-
-// // ??????????????????????diff???????????????????????????
-
-// const GET_DIFF = (current, previous) => {
-//     const DIFF = ((current - previous) / previous) * 100;
-//     return {
-//         DIFF: Math.abs(DIFF).toFixed(2),
-//         color: DIFF > 0 ? "text-success" : DIFF < 0 ? "text-danger" : "text-secondary",
-//         arrow: DIFF > 0 ? "▲" : DIFF < 0 ? "▼" : "▬",
-//     };
-// };
-
-// // ???????????????????satrat?????????????????
-
-// const START = () => {
-
-//     DISPLAY();
-//     const checkAndFetch = () => {
-//         const cached = _GET();
-//         const isStale = !cached || (Date.now() - cached.time > 6 * 60 * 1000);
-
-//         if (isStale && document.visibilityState === 'visible') {
-//             FETCH_AND_SAVE();
-//         }
-//     };
-
-//     checkAndFetch();
-//     setInterval(checkAndFetch, 60000);
-// }
-
-// START();

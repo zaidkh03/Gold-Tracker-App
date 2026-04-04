@@ -76,6 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
             karat: document.getElementById('assetKarat').value,
             date: document.getElementById('purchaseDate').value,
             price: document.getElementById('purchasePrice').value,
+            gram: document.getElementById('gram').value,
             image: currentBase64,
         };
 
@@ -90,8 +91,8 @@ document.addEventListener('DOMContentLoaded', () => {
         IMG_PREVIEW.style.display = 'none';
 
         const MODAL_EL = document.getElementById('addAssetModal');
-        const MODAL = bootstrap.Modal.getInstance(MODAL_EL);
-        if (MODAL) MODAL.hide();
+        const MODAL = bootstrap.Modal.getOrCreateInstance(MODAL_EL);
+        MODAL.hide();
     });
 
     LOAD_ASSETS();
@@ -99,7 +100,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 const GET_CURRENT_PRICES = (goldPricePerOz) => {
     const gram24 = goldPricePerOz / 31.1035;
+
     return {
+        "Ounce": goldPricePerOz, // ✅ مهم
         "24K": gram24,
         "22K": gram24 * (22 / 24),
         "21K": gram24 * (21 / 24),
@@ -112,6 +115,7 @@ const GET_CURRENT_PRICES = (goldPricePerOz) => {
 const GET_ASSET_PRICE_KEY = (type, karat) => {
     if (type === "EnglishLira") return "EnglishLira";
     if (type === "RashadiLira") return "RashadiLira";
+    if (type === "Bar") return "Ounce"; // ✅ الحل
     return karat;
 };
 
@@ -142,48 +146,63 @@ const DISPLAY_CARD = (asset) => {
 
     if (currentPrice) {
         const prices = GET_CURRENT_PRICES(currentPrice);
+
         const key = GET_ASSET_PRICE_KEY(asset.type, asset.karat);
-        const pnl = BUILD_PNL(prices[key] ?? prices["24K"], asset.price);
+        const unitPrice = prices[key] ?? prices["24K"];
+
+        let currentVal;
+
+        if (asset.type === "Bar" || asset.type === "EnglishLira" || asset.type === "RashadiLira") {
+            currentVal = unitPrice;
+        } else {
+            currentVal = unitPrice * (asset.gram || 1);
+        }
+
+        const pnl = BUILD_PNL(currentVal, asset.price);
         pnlHTML = pnl.html;
         pnlClass = pnl.cls;
     }
 
     const CARD = `
-    <div class="col-12 col-md-6 col-lg-4 mb-4" id="asset-${asset.id}">
-        <div class="asset-card text-center rounded-4 pb-3 position-relative"
-             data-type="${asset.type}"
-             data-karat="${asset.karat}"
-             data-purchase-price="${asset.price}">
-            <button onclick="deleteAsset(${asset.id})"
-                    class="btn btn-sm btn-outline-danger position-absolute end-0 top-0 m-2 border-0"
-                    style="z-index: 10;">
-                <i class="bi bi-trash"></i> ✕
-            </button>
-            <div class="img-placeholder mx-auto mb-3 d-flex align-items-center justify-content-center">
-                <img src="${asset.image}" class="img-fluid fit-object-cover" alt="Asset">
+<div class="col-12 col-md-6 col-lg-4 mb-4" id="asset-${asset.id}">
+    <div class="asset-card text-center rounded-4 pb-3 position-relative h-100"
+         data-type="${asset.type}"
+         data-karat="${asset.karat}"
+         data-purchase-price="${asset.price}"
+         data-gram="${asset.gram}">
+         
+        <button onclick="deleteAsset(${asset.id})"
+            class="btn btn-sm btn-outline-danger position-absolute end-0 top-0 m-2 border-0">
+            ✕
+        </button>
+
+        <div class="img-placeholder mx-auto mb-3 d-flex align-items-center justify-content-center">
+            <img src="${asset.image}" class="img-fluid fit-object-cover" alt="Asset">
+        </div>
+
+        <p class="custom-text-white fw-semibold mb-0 fs-5">${asset.name}</p>
+        <p class="text-gold small">${asset.type} | ${asset.karat} Fine Gold</p>
+
+        <div class="pnl-box d-flex justify-content-around align-items-center px-2 py-3 w-75 m-auto rounded-3 mb-2">
+            <div class="pnl-item text-gold small">
+                <span class="d-block mb-2">Bought At</span>
+                <strong class="custom-text-white">${asset.date}</strong>
             </div>
-            <p class="custom-text-white fw-semibold mb-0 fs-5">${asset.name}</p>
-            <p class="text-gold small">${asset.type} | ${asset.karat} Fine Gold</p>
-            <div class="pnl-box d-flex justify-content-around align-items-center px-2 py-3 w-75 m-auto rounded-3 mb-2">
-                <div class="pnl-item text-gold small">
-                    <span class="d-block mb-2">Bought At</span>
-                    <strong class="custom-text-white">${asset.date}</strong>
-                </div>
-                <div class="pnl-item text-gold small">
-                    <span class="d-block mb-2">Price</span>
-                    <strong class="custom-text-white">$${parseFloat(asset.price).toLocaleString()}</strong>
-                </div>
-            </div>
-            <div class="pnl-indicator ${pnlClass} w-75 m-auto p-2 rounded d-flex align-items-center justify-content-center"
-                 id="pnl-${asset.id}">
-                ${pnlHTML}
+            <div class="pnl-item text-gold small">
+                <span class="d-block mb-2">Bought Price</span>
+                <strong class="custom-text-white">$${parseFloat(asset.price).toLocaleString()}</strong>
             </div>
         </div>
-    </div>`;
+
+        <div class="pnl-indicator ${pnlClass} w-75 m-auto p-2 rounded d-flex align-items-center justify-content-center"
+             id="pnl-${asset.id}">
+            ${pnlHTML}
+        </div>
+    </div>
+</div>`;
 
     ASSETS_CARDS.insertAdjacentHTML('beforeend', CARD);
 };
-
 const UPDATE_PNL = () => {
     const currentPrice = window.currentGoldPrice;
     if (!currentPrice) return;
@@ -200,10 +219,18 @@ const UPDATE_PNL = () => {
         const type = card.dataset.type;
         const pnlIndicator = document.getElementById(`pnl-${id}`);
 
-        if (!pnlIndicator || isNaN(pPrice)) return;
-
         const key = GET_ASSET_PRICE_KEY(type, karat);
-        const currentVal = prices[key] ?? prices["24K"];
+        const unitPrice = prices[key] ?? prices["24K"];
+
+        let currentVal;
+
+        if (type === "Bar" || type === "EnglishLira" || type === "RashadiLira") {
+            currentVal = unitPrice;
+        } else {
+            const gram = parseFloat(card.dataset.gram) || 1;
+            currentVal = unitPrice * gram;
+        }
+
         const pnl = BUILD_PNL(currentVal, pPrice);
 
         pnlIndicator.className =

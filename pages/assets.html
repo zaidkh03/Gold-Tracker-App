@@ -141,8 +141,6 @@
 
                         </div> -->
 
-                        <!-- TODO:::::::::::::::::::::::::: -->
-
                         <div class="col-12 col-md-6 col-lg-4">
                             <div class="add-asset-card rounded-4 d-flex flex-column align-items-center justify-content-center"
                                 data-bs-toggle="modal" data-bs-target="#addAssetModal" style="cursor: pointer;">
@@ -166,11 +164,13 @@
                                     </div>
                                     <div class="modal-body">
                                         <form id="addAssetForm">
+                                            <input type="hidden" id="editingId">
+
                                             <div class="mb-3">
                                                 <label class="form-label">Asset Name</label>
                                                 <input type="text" id="assetName"
                                                     class="form-control bg-transparent text-white border-secondary"
-                                                    placeholder="e.g. PAMP Suisse Bar">
+                                                    placeholder="e.g. PAMP Suisse Bar" required>
                                             </div>
                                             <div class="row">
                                                 <div class="col-md-6 mb-3">
@@ -184,7 +184,7 @@
                                                     </select>
                                                     <input type="file" accept="image/*"
                                                         class="form-control bg-transparent text-white border-secondary mt-3"
-                                                        id="asset-img">
+                                                        id="asset-img" required>
                                                     <img id="img-preview" src="" alt="preview">
                                                 </div>
                                                 <div class="col-md-6 mb-3">
@@ -200,15 +200,22 @@
                                             <div class="mb-3">
                                                 <label class="form-label">Purchase Date</label>
                                                 <input type="date" id="purchaseDate"
-                                                    class="form-control bg-transparent text-white border-secondary">
+                                                    class="form-control bg-transparent text-white border-secondary"
+                                                    required>
                                             </div>
                                             <div class="mb-3">
-                                                <label class="form-label">Purchase Price ($)</label>
+                                                <label class="form-label">Purchase Date</label>
                                                 <input type="number" id="purchasePrice"
                                                     class="form-control bg-transparent text-white border-secondary"
-                                                    placeholder="0.00">
-
+                                                    placeholder="0.00" required>
                                             </div>
+
+                                            <div class="mb-3" id="gramField"> <label class="form-label">Gram</label>
+                                                <input type="number" id="gram"
+                                                    class="form-control bg-transparent text-white border-secondary"
+                                                    placeholder="0.00" required>
+                                            </div>
+
                                         </form>
                                     </div>
                                     <div class="modal-footer border-secondary">
@@ -222,6 +229,8 @@
                         </div>
                         <!-- !end popup form -->
                     </div>
+                        <!-- TODO:::::::::::::::::::::::::: -->
+
 
                 </div>
                 <!-- !end assets -->
